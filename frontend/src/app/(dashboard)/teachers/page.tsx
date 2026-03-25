@@ -24,16 +24,16 @@ interface TeacherRow {
 }
 
 const teachers: TeacherRow[] = [
-  { id: "1", name: "Dr. Pierre Kamga", employeeId: "ENS-001", email: "p.kamga@scholarpro.cm", phone: "+237 6 91 00 01", department: "Informatique", specialization: "Algorithmique", contractType: "CDI", status: "active" },
-  { id: "2", name: "Pr. Josephine Nkoulou", employeeId: "ENS-002", email: "j.nkoulou@scholarpro.cm", phone: "+237 6 91 00 02", department: "Informatique", specialization: "Bases de donnees", contractType: "CDI", status: "active" },
-  { id: "3", name: "Mme. Isabelle Ekotto", employeeId: "ENS-003", email: "i.ekotto@scholarpro.cm", phone: "+237 6 91 00 03", department: "Marketing", specialization: "Marketing Digital", contractType: "CDI", status: "active" },
-  { id: "4", name: "M. Albert Fouda", employeeId: "ENS-004", email: "a.fouda@scholarpro.cm", phone: "+237 6 91 00 04", department: "Finance", specialization: "Comptabilite", contractType: "CDI", status: "active" },
-  { id: "5", name: "Mme. Helen Johnson", employeeId: "ENS-005", email: "h.johnson@scholarpro.cm", phone: "+237 6 91 00 05", department: "Langues", specialization: "Anglais des affaires", contractType: "CDD", status: "active" },
-  { id: "6", name: "Dr. Francois Onana", employeeId: "ENS-006", email: "f.onana@scholarpro.cm", phone: "+237 6 91 00 06", department: "Mathematiques", specialization: "Analyse", contractType: "CDI", status: "on_leave" },
-  { id: "7", name: "M. Samuel Tamba", employeeId: "ENS-007", email: "s.tamba@scholarpro.cm", phone: "+237 6 91 00 07", department: "Informatique", specialization: "Reseaux", contractType: "CDI", status: "active" },
-  { id: "8", name: "Dr. Angele Mbarga", employeeId: "ENS-008", email: "a.mbarga@scholarpro.cm", phone: "+237 6 91 00 08", department: "Gestion", specialization: "Management", contractType: "CDI", status: "active" },
-  { id: "9", name: "M. Patrick Essono", employeeId: "ENS-009", email: "p.essono@scholarpro.cm", phone: "+237 6 91 00 09", department: "Droit", specialization: "Droit des affaires", contractType: "Vacataire", status: "active" },
-  { id: "10", name: "Mme. Christine Abena", employeeId: "ENS-010", email: "c.abena@scholarpro.cm", phone: "+237 6 91 00 10", department: "Finance", specialization: "Finance d'entreprise", contractType: "CDI", status: "inactive" },
+  { id: "1", name: "Dr. Pierre Kamga", employeeId: "ENS-001", email: "p.kamga@isce-alternance.fr", phone: "+33 1 42 00 01", department: "Informatique", specialization: "Algorithmique", contractType: "CDI", status: "active" },
+  { id: "2", name: "Pr. Josephine Nkoulou", employeeId: "ENS-002", email: "j.nkoulou@isce-alternance.fr", phone: "+33 1 42 00 02", department: "Informatique", specialization: "Bases de donnees", contractType: "CDI", status: "active" },
+  { id: "3", name: "Mme. Isabelle Ekotto", employeeId: "ENS-003", email: "i.ekotto@isce-alternance.fr", phone: "+33 1 42 00 03", department: "Marketing", specialization: "Marketing Digital", contractType: "CDI", status: "active" },
+  { id: "4", name: "M. Albert Fouda", employeeId: "ENS-004", email: "a.fouda@isce-alternance.fr", phone: "+33 1 42 00 04", department: "Finance", specialization: "Comptabilite", contractType: "CDI", status: "active" },
+  { id: "5", name: "Mme. Helen Johnson", employeeId: "ENS-005", email: "h.johnson@isce-alternance.fr", phone: "+33 1 42 00 05", department: "Langues", specialization: "Anglais des affaires", contractType: "CDD", status: "active" },
+  { id: "6", name: "Dr. Francois Onana", employeeId: "ENS-006", email: "f.onana@isce-alternance.fr", phone: "+33 1 42 00 06", department: "Mathematiques", specialization: "Analyse", contractType: "CDI", status: "on_leave" },
+  { id: "7", name: "M. Samuel Tamba", employeeId: "ENS-007", email: "s.tamba@isce-alternance.fr", phone: "+33 1 42 00 07", department: "Informatique", specialization: "Reseaux", contractType: "CDI", status: "active" },
+  { id: "8", name: "Dr. Angele Mbarga", employeeId: "ENS-008", email: "a.mbarga@isce-alternance.fr", phone: "+33 1 42 00 08", department: "Gestion", specialization: "Management", contractType: "CDI", status: "active" },
+  { id: "9", name: "M. Patrick Essono", employeeId: "ENS-009", email: "p.essono@isce-alternance.fr", phone: "+33 1 42 00 09", department: "Droit", specialization: "Droit des affaires", contractType: "Vacataire", status: "active" },
+  { id: "10", name: "Mme. Christine Abena", employeeId: "ENS-010", email: "c.abena@isce-alternance.fr", phone: "+33 1 42 00 10", department: "Finance", specialization: "Finance d'entreprise", contractType: "CDI", status: "inactive" },
 ];
 
 const columns: Column<TeacherRow>[] = [

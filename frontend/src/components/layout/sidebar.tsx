@@ -263,7 +263,7 @@ export function Sidebar() {
         </div>
         {!collapsed && (
           <span className="text-lg font-bold text-foreground tracking-tight">
-            Scholar<span className="text-primary-600">Pro</span>
+            ISCE <span className="text-primary-600">Alternance</span>
           </span>
         )}
       </div>

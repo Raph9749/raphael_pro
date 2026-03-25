@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
             <GraduationCap className="h-5 w-5" />
           </div>
           <span className="text-xl font-bold text-foreground">
-            Scholar<span className="text-primary-600">Pro</span>
+            ISCE <span className="text-primary-600">Alternance</span>
           </span>
         </div>
 
@@ -66,7 +66,7 @@ export default function ForgotPasswordPage() {
               <Input
                 label="Adresse email"
                 type="email"
-                placeholder="nom@etablissement.cm"
+                placeholder="nom@isce-alternance.fr"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 leftIcon={<Mail className="h-4 w-4" />}
@@ -91,7 +91,7 @@ export default function ForgotPasswordPage() {
         )}
 
         <p className="mt-10 text-center text-xs text-muted-foreground">
-          ScholarPro &copy; 2026. Tous droits reserves.
+          ISCE Alternance &copy; 2026. Tous droits reserves.
         </p>
       </div>
     </div>

@@ -3,8 +3,8 @@ import './globals.css'
 import { Providers } from './providers'
 
 export const metadata: Metadata = {
-  title: 'ScholarPro - School Management System',
-  description: 'Premium school management platform',
+  title: 'ISCE Alternance - Gestion Scolaire',
+  description: 'Plateforme de gestion scolaire ISCE Alternance',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

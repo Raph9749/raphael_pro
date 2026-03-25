@@ -33,10 +33,10 @@ const columns: KanbanColumn[] = [
     color: "border-t-slate-400",
     dotColor: "bg-slate-400",
     candidates: [
-      { id: "1", name: "Alice Mbarga", email: "a.mbarga@mail.cm", phone: "+237 690 11 22", program: "Informatique", date: "22/03/2026" },
-      { id: "2", name: "Bruno Essono", email: "b.essono@mail.cm", phone: "+237 691 22 33", program: "Marketing", date: "21/03/2026" },
-      { id: "3", name: "Diane Fouda", email: "d.fouda@mail.cm", phone: "+237 692 33 44", program: "Gestion", date: "20/03/2026" },
-      { id: "4", name: "Eric Tamba", email: "e.tamba@mail.cm", phone: "+237 693 44 55", program: "Finance", date: "19/03/2026" },
+      { id: "1", name: "Alice Mbarga", email: "a.mbarga@mail.fr", phone: "+33 6 120 11 22", program: "Informatique", date: "22/03/2026" },
+      { id: "2", name: "Bruno Essono", email: "b.essono@mail.fr", phone: "+33 6 121 22 33", program: "Marketing", date: "21/03/2026" },
+      { id: "3", name: "Diane Fouda", email: "d.fouda@mail.fr", phone: "+33 6 122 33 44", program: "Gestion", date: "20/03/2026" },
+      { id: "4", name: "Eric Tamba", email: "e.tamba@mail.fr", phone: "+33 6 123 44 55", program: "Finance", date: "19/03/2026" },
     ],
   },
   {
@@ -45,9 +45,9 @@ const columns: KanbanColumn[] = [
     color: "border-t-warning-400",
     dotColor: "bg-warning-400",
     candidates: [
-      { id: "5", name: "Fatima Ngo", email: "f.ngo@mail.cm", phone: "+237 694 55 66", program: "Informatique", date: "18/03/2026", score: 72 },
-      { id: "6", name: "Georges Atanga", email: "g.atanga@mail.cm", phone: "+237 695 66 77", program: "Droit", date: "17/03/2026", score: 65 },
-      { id: "7", name: "Helene Mvondo", email: "h.mvondo@mail.cm", phone: "+237 696 77 88", program: "Gestion", date: "16/03/2026", score: 81 },
+      { id: "5", name: "Fatima Ngo", email: "f.ngo@mail.fr", phone: "+33 6 124 55 66", program: "Informatique", date: "18/03/2026", score: 72 },
+      { id: "6", name: "Georges Atanga", email: "g.atanga@mail.fr", phone: "+33 6 125 66 77", program: "Droit", date: "17/03/2026", score: 65 },
+      { id: "7", name: "Helene Mvondo", email: "h.mvondo@mail.fr", phone: "+33 6 126 77 88", program: "Gestion", date: "16/03/2026", score: 81 },
     ],
   },
   {
@@ -56,8 +56,8 @@ const columns: KanbanColumn[] = [
     color: "border-t-primary-400",
     dotColor: "bg-primary-400",
     candidates: [
-      { id: "8", name: "Ibrahim Kamga", email: "i.kamga@mail.cm", phone: "+237 697 88 99", program: "Informatique", date: "15/03/2026", score: 85 },
-      { id: "9", name: "Julie Ekotto", email: "j.ekotto@mail.cm", phone: "+237 698 99 00", program: "Finance", date: "14/03/2026", score: 78 },
+      { id: "8", name: "Ibrahim Kamga", email: "i.kamga@mail.fr", phone: "+33 6 127 88 99", program: "Informatique", date: "15/03/2026", score: 85 },
+      { id: "9", name: "Julie Ekotto", email: "j.ekotto@mail.fr", phone: "+33 6 128 99 00", program: "Finance", date: "14/03/2026", score: 78 },
     ],
   },
   {
@@ -66,9 +66,9 @@ const columns: KanbanColumn[] = [
     color: "border-t-success-400",
     dotColor: "bg-success-400",
     candidates: [
-      { id: "10", name: "Kevin Onana", email: "k.onana@mail.cm", phone: "+237 699 00 11", program: "Informatique", date: "10/03/2026", score: 92 },
-      { id: "11", name: "Laura Biya", email: "l.biya@mail.cm", phone: "+237 690 12 23", program: "Marketing", date: "08/03/2026", score: 88 },
-      { id: "12", name: "Marc Diallo", email: "m.diallo@mail.cm", phone: "+237 691 23 34", program: "Gestion", date: "05/03/2026", score: 90 },
+      { id: "10", name: "Kevin Onana", email: "k.onana@mail.fr", phone: "+33 6 129 00 11", program: "Informatique", date: "10/03/2026", score: 92 },
+      { id: "11", name: "Laura Biya", email: "l.biya@mail.fr", phone: "+33 6 120 12 23", program: "Marketing", date: "08/03/2026", score: 88 },
+      { id: "12", name: "Marc Diallo", email: "m.diallo@mail.fr", phone: "+33 6 121 23 34", program: "Gestion", date: "05/03/2026", score: 90 },
     ],
   },
   {
@@ -77,7 +77,7 @@ const columns: KanbanColumn[] = [
     color: "border-t-error-400",
     dotColor: "bg-error-400",
     candidates: [
-      { id: "13", name: "Nathalie Owono", email: "n.owono@mail.cm", phone: "+237 692 34 45", program: "Finance", date: "12/03/2026", score: 35 },
+      { id: "13", name: "Nathalie Owono", email: "n.owono@mail.fr", phone: "+33 6 122 34 45", program: "Finance", date: "12/03/2026", score: 35 },
     ],
   },
 ];
