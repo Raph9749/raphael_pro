@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { useRole } from "@/hooks/use-role";
 
 interface StudentGrade {
   name: string;
@@ -88,6 +89,7 @@ export default function GradesPage() {
   const [saved, setSaved] = React.useState(false);
   const [editCell, setEditCell] = React.useState<{ idx: number; field: keyof StudentGrade } | null>(null);
   const [editValue, setEditValue] = React.useState("");
+  const { canTeach, isStudent, isParent } = useRole();
 
   React.useEffect(() => { setAllGrades(loadGrades()); }, []);
 
@@ -95,6 +97,7 @@ export default function GradesPage() {
   const students = allGrades[key] || [];
 
   const startEdit = (idx: number, field: keyof StudentGrade, value: number) => {
+    if (!canTeach) return; // Students/parents can't edit grades
     setEditCell({ idx, field });
     setEditValue(String(value));
   };
@@ -130,16 +133,21 @@ export default function GradesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Notes" description="Saisie et gestion des notes par matiere et classe">
+      <PageHeader
+        title={isStudent ? "Mes notes" : isParent ? "Notes de votre enfant" : "Notes"}
+        description={canTeach ? "Saisie et gestion des notes par matiere et classe" : "Consultez les notes"}
+      >
         <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>Exporter</Button>
-        <Button
-          size="sm"
-          leftIcon={saved ? <CheckCircle2 className="h-4 w-4" /> : <Save className="h-4 w-4" />}
-          onClick={handleSave}
-          className={saved ? "bg-success-600 hover:bg-success-700" : ""}
-        >
-          {saved ? "Enregistre!" : "Enregistrer"}
-        </Button>
+        {canTeach && (
+          <Button
+            size="sm"
+            leftIcon={saved ? <CheckCircle2 className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+            onClick={handleSave}
+            className={saved ? "bg-success-600 hover:bg-success-700" : ""}
+          >
+            {saved ? "Enregistre!" : "Enregistrer"}
+          </Button>
+        )}
       </PageHeader>
 
       {/* Selectors */}
@@ -236,7 +244,7 @@ export default function GradesPage() {
                         {(["cc1", "cc2", "tp", "exam"] as const).map((field) => (
                           <TableCell
                             key={field}
-                            className={cn("text-center cursor-pointer hover:bg-muted/50 transition-colors", gradeColor(student[field]))}
+                            className={cn("text-center transition-colors", gradeColor(student[field]), canTeach && "cursor-pointer hover:bg-muted/50")}
                             onClick={() => startEdit(index, field, student[field])}
                           >
                             {editCell?.idx === index && editCell.field === field ? (
@@ -278,9 +286,15 @@ export default function GradesPage() {
         </CardContent>
       </Card>
 
-      <p className="text-xs text-muted-foreground text-center">
-        Cliquez sur une note pour la modifier. Les moyennes et statistiques se mettent a jour automatiquement.
-      </p>
+      {canTeach ? (
+        <p className="text-xs text-muted-foreground text-center">
+          Cliquez sur une note pour la modifier. Les moyennes et statistiques se mettent a jour automatiquement.
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground text-center">
+          Consultation uniquement. Contactez un enseignant ou l&apos;administration pour toute question.
+        </p>
+      )}
     </div>
   );
 }

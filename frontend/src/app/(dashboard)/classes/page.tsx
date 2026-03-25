@@ -20,6 +20,7 @@ import {
   getTeacherNames, PROGRAMS, ROOMS,
   type ClassGroup,
 } from "@/lib/mock-data";
+import { useRole } from "@/hooks/use-role";
 
 const programColors: Record<string, string> = {
   Informatique: "bg-primary-100 text-primary-700",
@@ -46,6 +47,7 @@ export default function ClassesPage() {
   const [editId, setEditId] = React.useState<string | null>(null);
   const [form, setForm] = React.useState(emptyForm);
   const [showDelete, setShowDelete] = React.useState<string | null>(null);
+  const { canManage } = useRole();
 
   React.useEffect(() => { setClasses(getClasses()); }, []);
 
@@ -102,10 +104,12 @@ export default function ClassesPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Classes" description="Gerez les classes et groupes de votre etablissement">
-        <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={openAdd}>
-          Nouvelle classe
-        </Button>
+      <PageHeader title="Classes" description={canManage ? "Gerez les classes et groupes de votre etablissement" : "Consultez les classes de votre etablissement"}>
+        {canManage && (
+          <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={openAdd}>
+            Nouvelle classe
+          </Button>
+        )}
       </PageHeader>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -123,14 +127,16 @@ export default function ClassesPage() {
                     <Badge className={programColors[cls.program] || "bg-muted text-muted-foreground"}>
                       {cls.program}
                     </Badge>
-                    <div className="hidden group-hover:flex items-center gap-0.5 ml-1">
-                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(cls)}>
-                        <Edit className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button variant="ghost" size="icon-sm" onClick={() => setShowDelete(cls.id)}>
-                        <Trash2 className="h-3.5 w-3.5 text-error-500" />
-                      </Button>
-                    </div>
+                    {canManage && (
+                      <div className="hidden group-hover:flex items-center gap-0.5 ml-1">
+                        <Button variant="ghost" size="icon-sm" onClick={() => openEdit(cls)}>
+                          <Edit className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon-sm" onClick={() => setShowDelete(cls.id)}>
+                          <Trash2 className="h-3.5 w-3.5 text-error-500" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
 

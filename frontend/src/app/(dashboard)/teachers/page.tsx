@@ -22,6 +22,7 @@ import {
   DEPARTMENTS, CONTRACT_TYPES,
   type Teacher,
 } from "@/lib/mock-data";
+import { useRole } from "@/hooks/use-role";
 
 interface TeacherRow extends Teacher {
   [key: string]: unknown;
@@ -44,6 +45,7 @@ export default function TeachersPage() {
   const [editId, setEditId] = React.useState<string | null>(null);
   const [form, setForm] = React.useState(emptyForm);
   const [showDelete, setShowDelete] = React.useState<string | null>(null);
+  const { canManage } = useRole();
 
   React.useEffect(() => { setTeachers(getTeachers() as TeacherRow[]); }, []);
 
@@ -125,8 +127,10 @@ export default function TeachersPage() {
 
   const actions: RowAction<TeacherRow>[] = [
     { label: "Voir le profil", icon: <Eye className="h-4 w-4" />, onClick: (row) => router.push(`/teachers/${row.id}`) },
-    { label: "Modifier", icon: <Edit className="h-4 w-4" />, onClick: (row) => openEdit(row) },
-    { label: "Supprimer", icon: <Trash2 className="h-4 w-4" />, onClick: (row) => setShowDelete(row.id), variant: "destructive" },
+    ...(canManage ? [
+      { label: "Modifier", icon: <Edit className="h-4 w-4" />, onClick: (row: TeacherRow) => openEdit(row) },
+      { label: "Supprimer", icon: <Trash2 className="h-4 w-4" />, onClick: (row: TeacherRow) => setShowDelete(row.id), variant: "destructive" as const },
+    ] : []),
   ];
 
   return (
@@ -135,9 +139,11 @@ export default function TeachersPage() {
         <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
           Exporter
         </Button>
-        <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={openAdd}>
-          Ajouter un enseignant
-        </Button>
+        {canManage && (
+          <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={openAdd}>
+            Ajouter un enseignant
+          </Button>
+        )}
       </PageHeader>
 
       <DataTable
