@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import {
   getClasses, addClass, updateClass, deleteClass,
-  getTeacherNames, PROGRAMS, ROOMS,
+  getTeacherNames, getProgramNames, ROOMS,
   type ClassGroup,
 } from "@/lib/mock-data";
 import { useRole } from "@/hooks/use-role";
@@ -52,6 +52,7 @@ export default function ClassesPage() {
   React.useEffect(() => { setClasses(getClasses()); }, []);
 
   const teacherNames = getTeacherNames();
+  const programNames = getProgramNames();
 
   const openAdd = () => {
     setForm(emptyForm);
@@ -206,7 +207,7 @@ export default function ClassesPage() {
                 <Select value={form.program} onValueChange={(v) => setForm({ ...form, program: v })}>
                   <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
                   <SelectContent>
-                    {PROGRAMS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                    {programNames.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>

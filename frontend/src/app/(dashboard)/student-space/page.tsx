@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import {
   BookOpen,
   Calendar,
@@ -7,7 +8,6 @@ import {
   ClipboardCheck,
   Clock,
   FileText,
-  TrendingUp,
   Bell,
   Download,
   ChevronRight,
@@ -17,55 +17,79 @@ import { StatsCard } from "@/components/common/stats-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  AreaChart,
-  Area,
   BarChart,
   Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-const gradeData = [
-  { matiere: "Algo", note: 16, max: 20 },
-  { matiere: "BDD", note: 14, max: 20 },
-  { matiere: "Maths", note: 12, max: 20 },
-  { matiere: "Anglais", note: 15, max: 20 },
-  { matiere: "Reseaux", note: 17, max: 20 },
-  { matiere: "Projet", note: 18, max: 20 },
-];
-
-const averageEvolution = [
-  { mois: "Oct", moyenne: 13.5 },
-  { mois: "Nov", moyenne: 14.2 },
-  { mois: "Dec", moyenne: 13.8 },
-  { mois: "Jan", moyenne: 14.8 },
-  { mois: "Fev", moyenne: 15.1 },
-  { mois: "Mar", moyenne: 15.4 },
-];
-
-const todaySchedule = [
-  { time: "08:00 - 10:00", subject: "Algorithmique", room: "Salle 101", teacher: "Dr. Kamga", type: "CM" },
-  { time: "10:15 - 12:15", subject: "Base de donnees", room: "Labo 3", teacher: "Pr. Nkoulou", type: "TP" },
-  { time: "14:00 - 16:00", subject: "Reseaux informatiques", room: "Salle 205", teacher: "M. Fouda", type: "TD" },
-];
-
-const recentGrades = [
-  { subject: "Algorithmique", type: "Examen", score: "16/20", date: "15 Mars 2026", status: "excellent" },
-  { subject: "Base de donnees", type: "TP Note", score: "14/20", date: "12 Mars 2026", status: "bien" },
-  { subject: "Mathematiques", type: "Controle", score: "12/20", date: "10 Mars 2026", status: "moyen" },
-  { subject: "Anglais", type: "Oral", score: "15/20", date: "8 Mars 2026", status: "bien" },
-];
-
-const notifications = [
-  { text: "Nouvelles notes publiees: Algorithmique", time: "Il y a 2h", type: "grade" },
-  { text: "Rappel: TP Base de donnees demain", time: "Il y a 5h", type: "schedule" },
-  { text: "Document disponible: Bulletin S1", time: "Hier", type: "document" },
-];
+import {
+  getEvents, getCourses, getGrades, getStudents,
+  downloadCSV, exportGradesCSV,
+  type ScheduleEvent, type StudentGrade,
+} from "@/lib/mock-data";
+import { getStudentShortClass, getStudentClass } from "@/hooks/use-role";
 
 export default function StudentSpacePage() {
+  const [todayEvents, setTodayEvents] = React.useState<ScheduleEvent[]>([]);
+  const [gradeData, setGradeData] = React.useState<{ matiere: string; note: number }[]>([]);
+  const [totalCourses, setTotalCourses] = React.useState(0);
+  const [moyenne, setMoyenne] = React.useState(0);
+
+  React.useEffect(() => {
+    const shortClass = getStudentShortClass();
+    const fullClass = getStudentClass();
+
+    // Today's events for student's class
+    const today = new Date();
+    const dayOfWeek = (today.getDay() + 6) % 7;
+    const allEvents = getEvents();
+    const myEvents = allEvents.filter((e) =>
+      e.day === dayOfWeek && (
+        e.class === shortClass ||
+        e.class.includes("Info") && shortClass.includes("Info")
+      )
+    ).sort((a, b) => a.startHour - b.startHour);
+    setTodayEvents(myEvents);
+
+    // Courses for this class
+    const allCourses = getCourses();
+    const myCourses = allCourses.filter((c) =>
+      c.class === shortClass ||
+      c.class.toLowerCase().includes("l2 info a") ||
+      shortClass.toLowerCase().includes(c.class.toLowerCase().split(" ").slice(0, 2).join(" "))
+    );
+    setTotalCourses(myCourses.length);
+
+    // Get grades for this student
+    const allGrades = getGrades();
+    const students = getStudents();
+    const me = students.find((s) => s.classe === fullClass);
+    const myName = me?.name || "Marie Nguema";
+
+    const notesBySubject: { matiere: string; note: number }[] = [];
+    let totalAvg = 0;
+    let count = 0;
+
+    for (const course of myCourses) {
+      const key = `${course.id}-${course.code}`;
+      const gradeList = allGrades[key] || [];
+      const myGrade = gradeList.find((g) => g.name === myName);
+      if (myGrade) {
+        const avg = myGrade.cc1 * 0.2 + myGrade.cc2 * 0.2 + myGrade.tp * 0.2 + myGrade.exam * 0.4;
+        notesBySubject.push({ matiere: course.name.substring(0, 12), note: Math.round(avg * 10) / 10 });
+        totalAvg += avg;
+        count++;
+      }
+    }
+    setGradeData(notesBySubject);
+    setMoyenne(count > 0 ? Math.round((totalAvg / count) * 10) / 10 : 0);
+  }, []);
+
   const today = new Date().toLocaleDateString("fr-FR", {
     weekday: "long",
     day: "numeric",
@@ -85,11 +109,8 @@ export default function StudentSpacePage() {
         </div>
         <div className="flex items-center gap-3">
           <Badge variant="default" className="bg-emerald-100 text-emerald-700 border-emerald-200">
-            L2 Informatique A
+            {getStudentClass()}
           </Badge>
-          <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
-            Mon bulletin
-          </Button>
         </div>
       </div>
 
@@ -97,29 +118,27 @@ export default function StudentSpacePage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
           label="Moyenne generale"
-          value="15.4/20"
+          value={`${moyenne}/20`}
           icon={<Award className="h-6 w-6 text-emerald-600" />}
           iconBg="bg-emerald-100"
-          trend={{ value: "+0.3", positive: true }}
-        />
-        <StatsCard
-          label="Taux de presence"
-          value="96.5%"
-          icon={<ClipboardCheck className="h-6 w-6 text-primary-600" />}
-          iconBg="bg-primary-100"
-          trend={{ value: "+1.2%", positive: true }}
         />
         <StatsCard
           label="Cours aujourd'hui"
-          value="3"
-          icon={<Calendar className="h-6 w-6 text-secondary-600" />}
-          iconBg="bg-secondary-100"
+          value={String(todayEvents.length)}
+          icon={<Calendar className="h-6 w-6 text-primary-600" />}
+          iconBg="bg-primary-100"
         />
         <StatsCard
           label="Matieres"
-          value="8"
+          value={String(totalCourses)}
           icon={<BookOpen className="h-6 w-6 text-purple-600" />}
           iconBg="bg-purple-100"
+        />
+        <StatsCard
+          label="Notes saisies"
+          value={String(gradeData.length)}
+          icon={<ClipboardCheck className="h-6 w-6 text-secondary-600" />}
+          iconBg="bg-secondary-100"
         />
       </div>
 
@@ -132,156 +151,95 @@ export default function StudentSpacePage() {
           </CardHeader>
           <CardContent>
             <div className="h-[260px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={gradeData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                  <XAxis dataKey="matiere" tick={{ fontSize: 12 }} stroke="#94A3B8" />
-                  <YAxis domain={[0, 20]} tick={{ fontSize: 12 }} stroke="#94A3B8" />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #E2E8F0",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    }}
-                    formatter={(value: number) => [`${value}/20`, "Note"]}
-                  />
-                  <Bar dataKey="note" fill="#10B981" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              {gradeData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={gradeData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+                    <XAxis dataKey="matiere" tick={{ fontSize: 11 }} stroke="#94A3B8" angle={-15} textAnchor="end" height={50} />
+                    <YAxis domain={[0, 20]} tick={{ fontSize: 12 }} stroke="#94A3B8" />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: "12px",
+                        border: "1px solid #E2E8F0",
+                        boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                      }}
+                      formatter={(value: number) => [`${value}/20`, "Note"]}
+                    />
+                    <Bar dataKey="note" fill="#10B981" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                  Aucune note disponible
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* Average evolution */}
+        {/* Today schedule */}
         <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Evolution de la moyenne</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-base font-semibold">Emploi du temps du jour</CardTitle>
+            <Badge variant="default">
+              <Clock className="h-3 w-3 mr-1" />
+              {todayEvents.length} cours
+            </Badge>
           </CardHeader>
           <CardContent>
-            <div className="h-[260px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={averageEvolution}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-                  <XAxis dataKey="mois" tick={{ fontSize: 12 }} stroke="#94A3B8" />
-                  <YAxis domain={[10, 20]} tick={{ fontSize: 12 }} stroke="#94A3B8" />
-                  <Tooltip
-                    contentStyle={{
-                      borderRadius: "12px",
-                      border: "1px solid #E2E8F0",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                    }}
-                    formatter={(value: number) => [`${value}/20`, "Moyenne"]}
-                  />
-                  <defs>
-                    <linearGradient id="studentGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10B981" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#10B981" stopOpacity={0.05} />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="moyenne"
-                    stroke="#10B981"
-                    strokeWidth={2.5}
-                    fill="url(#studentGradient)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+            <div className="space-y-3">
+              {todayEvents.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">Aucun cours aujourd&apos;hui</p>
+              ) : (
+                todayEvents.map((event) => (
+                  <div
+                    key={event.id}
+                    className="rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-xs font-medium text-primary-600">
+                        {event.startHour}:00 - {event.startHour + event.duration}:00
+                      </p>
+                      <Badge variant="outline" className="text-[10px]">
+                        {event.type === "cours" ? "CM" : event.type === "td" ? "TD/TP" : "Examen"}
+                      </Badge>
+                    </div>
+                    <p className="text-sm font-medium text-foreground">{event.subject}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {event.room} &middot; {event.teacher}
+                    </p>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Bottom section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Today's schedule */}
-        <Card className="lg:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold">Emploi du temps du jour</CardTitle>
-            <Badge variant="default">
-              <Clock className="h-3 w-3 mr-1" />
-              {todaySchedule.length} cours
-            </Badge>
+      {/* Recent grades */}
+      {gradeData.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Recapitulatif des notes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {todaySchedule.map((item, index) => (
-                <div
-                  key={index}
-                  className="rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors"
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-xs font-medium text-primary-600">{item.time}</p>
-                    <Badge variant="outline" className="text-[10px]">{item.type}</Badge>
-                  </div>
-                  <p className="text-sm font-medium text-foreground">{item.subject}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.room} &middot; {item.teacher}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent grades */}
-        <Card className="lg:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold">Dernieres notes</CardTitle>
-            <Button variant="ghost" size="sm" className="text-primary-600 gap-1">
-              Tout voir <ChevronRight className="h-3.5 w-3.5" />
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {recentGrades.map((grade, index) => (
-                <div key={index} className="flex items-center justify-between rounded-lg border border-border p-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{grade.subject}</p>
-                    <p className="text-xs text-muted-foreground">{grade.type} &middot; {grade.date}</p>
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {gradeData.map((g, i) => (
+                <div key={i} className="flex items-center justify-between rounded-lg border border-border p-3">
+                  <span className="text-sm font-medium text-foreground">{g.matiere}</span>
                   <span className={`text-sm font-bold ${
-                    grade.status === "excellent" ? "text-emerald-600" :
-                    grade.status === "bien" ? "text-primary-600" :
-                    "text-amber-600"
+                    g.note >= 14 ? "text-emerald-600" :
+                    g.note >= 10 ? "text-amber-600" :
+                    "text-error-600"
                   }`}>
-                    {grade.score}
+                    {g.note}/20
                   </span>
                 </div>
               ))}
             </div>
           </CardContent>
         </Card>
-
-        {/* Notifications */}
-        <Card className="lg:col-span-1">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold">Notifications</CardTitle>
-            <Bell className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {notifications.map((notif, index) => (
-                <div key={index} className="flex items-start gap-3 rounded-lg border border-border p-3">
-                  <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
-                    notif.type === "grade" ? "bg-emerald-100" :
-                    notif.type === "schedule" ? "bg-primary-100" :
-                    "bg-amber-100"
-                  }`}>
-                    {notif.type === "grade" ? <Award className="h-4 w-4 text-emerald-600" /> :
-                     notif.type === "schedule" ? <Calendar className="h-4 w-4 text-primary-600" /> :
-                     <FileText className="h-4 w-4 text-amber-600" />}
-                  </div>
-                  <div>
-                    <p className="text-sm text-foreground">{notif.text}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{notif.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      )}
     </div>
   );
 }
