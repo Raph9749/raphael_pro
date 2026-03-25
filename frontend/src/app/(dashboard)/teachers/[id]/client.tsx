@@ -1,7 +1,8 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, Edit, Mail, Phone, MapPin, BookOpen, Users, Clock, Award } from "lucide-react";
+import { ArrowLeft, Edit, Mail, Phone, BookOpen, Users, Clock, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,39 +11,58 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatusBadge } from "@/components/common/status-badge";
 import { StatsCard } from "@/components/common/stats-card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getTeacher, getCourses, getEvents, type Teacher, type Course, type ScheduleEvent } from "@/lib/mock-data";
 
-const teacher = {
-  name: "Dr. Pierre Kamga",
-  employeeId: "ENS-001",
-  email: "p.kamga@isce-alternance.fr",
-  phone: "+33 1 42 00 01",
-  department: "Informatique",
-  specialization: "Algorithmique & Structures de donnees",
-  qualification: "Doctorat en Informatique - Universite Paris-Saclay",
-  hireDate: "01/09/2018",
-  contractType: "CDI",
-  address: "15 Rue du Faubourg Saint-Martin, 75010 Paris",
-  dateOfBirth: "22/05/1980",
-  status: "active" as const,
-  bio: "Enseignant-chercheur specialise en algorithmique et intelligence artificielle. Plus de 15 ans d'experience dans l'enseignement superieur.",
-};
-
-const courses = [
-  { subject: "Algorithmique Avancee", class: "L2 Info A", hours: 4, students: 35, room: "Salle 101" },
-  { subject: "Algorithmique Avancee", class: "L2 Info B", hours: 4, students: 32, room: "Salle 102" },
-  { subject: "Intelligence Artificielle", class: "M1 Info", hours: 3, students: 22, room: "Labo 1" },
-  { subject: "Structures de donnees", class: "L1 Info A", hours: 4, students: 45, room: "Amphi A" },
-];
-
-const schedule = [
-  { day: "Lundi", time: "08:00 - 10:00", subject: "Algorithmique", class: "L2 Info A", room: "Salle 101" },
-  { day: "Lundi", time: "14:00 - 17:00", subject: "IA", class: "M1 Info", room: "Labo 1" },
-  { day: "Mardi", time: "10:00 - 12:00", subject: "Algorithmique", class: "L2 Info B", room: "Salle 102" },
-  { day: "Mercredi", time: "08:00 - 12:00", subject: "Structures de donnees", class: "L1 Info A", room: "Amphi A" },
-  { day: "Vendredi", time: "08:00 - 10:00", subject: "Algorithmique TD", class: "L2 Info A", room: "Labo 2" },
-];
+const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 
 export default function TeacherProfileClient() {
+  const [teacher, setTeacher] = React.useState<Teacher | null>(null);
+  const [teacherCourses, setTeacherCourses] = React.useState<Course[]>([]);
+  const [teacherSchedule, setTeacherSchedule] = React.useState<ScheduleEvent[]>([]);
+
+  React.useEffect(() => {
+    // Get teacher ID from URL
+    const pathParts = window.location.pathname.split("/");
+    const id = pathParts[pathParts.length - 1];
+    const t = getTeacher(id);
+    if (t) {
+      setTeacher(t);
+      // Get courses for this teacher
+      const allCourses = getCourses();
+      setTeacherCourses(allCourses.filter((c) => c.teacher === t.name));
+      // Get schedule events for this teacher
+      const allEvents = getEvents();
+      const shortName = t.name.split(" ").slice(-1)[0];
+      setTeacherSchedule(
+        allEvents
+          .filter((e) => e.teacher.includes(shortName) || e.teacher === t.name)
+          .sort((a, b) => a.day - b.day || a.startHour - b.startHour)
+      );
+    }
+  }, []);
+
+  if (!teacher) {
+    return (
+      <div className="space-y-6">
+        <Link href="/teachers" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          Retour a la liste
+        </Link>
+        <Card>
+          <CardContent className="p-12 text-center">
+            <p className="text-muted-foreground">Enseignant non trouve</p>
+            <Link href="/teachers">
+              <Button className="mt-4">Retour aux enseignants</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  const totalStudents = teacherCourses.reduce((sum, c) => sum + 30, 0); // estimate
+  const totalHours = teacherSchedule.reduce((sum, e) => sum + e.duration, 0);
+
   return (
     <div className="space-y-6">
       <Link href="/teachers" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -61,23 +81,24 @@ export default function TeacherProfileClient() {
                 <Badge variant="outline">{teacher.employeeId}</Badge>
                 <Badge variant="default">{teacher.contractType}</Badge>
               </div>
-              <p className="text-sm text-muted-foreground max-w-lg">{teacher.bio}</p>
+              <p className="text-sm text-muted-foreground max-w-lg">
+                Specialise(e) en {teacher.specialization}. Departement {teacher.department}.
+              </p>
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5"><BookOpen className="h-4 w-4" />{teacher.department}</span>
                 <span className="flex items-center gap-1.5"><Mail className="h-4 w-4" />{teacher.email}</span>
                 <span className="flex items-center gap-1.5"><Phone className="h-4 w-4" />{teacher.phone}</span>
               </div>
             </div>
-            <Button size="sm" leftIcon={<Edit className="h-4 w-4" />}>Modifier</Button>
           </div>
         </CardContent>
       </Card>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard label="Cours dispenses" value="4" icon={<BookOpen className="h-5 w-5 text-primary-600" />} iconBg="bg-primary-100" />
-        <StatsCard label="Etudiants" value="134" icon={<Users className="h-5 w-5 text-secondary-600" />} iconBg="bg-secondary-100" />
-        <StatsCard label="Heures / semaine" value="15h" icon={<Clock className="h-5 w-5 text-warning-600" />} iconBg="bg-warning-100" />
-        <StatsCard label="Note moyenne" value="14.8/20" icon={<Award className="h-5 w-5 text-success-600" />} iconBg="bg-success-100" />
+        <StatsCard label="Cours dispenses" value={String(teacherCourses.length)} icon={<BookOpen className="h-5 w-5 text-primary-600" />} iconBg="bg-primary-100" />
+        <StatsCard label="Etudiants (est.)" value={String(totalStudents)} icon={<Users className="h-5 w-5 text-secondary-600" />} iconBg="bg-secondary-100" />
+        <StatsCard label="Heures / semaine" value={`${totalHours}h`} icon={<Clock className="h-5 w-5 text-warning-600" />} iconBg="bg-warning-100" />
+        <StatsCard label="Cours semaine" value={String(teacherSchedule.length)} icon={<Award className="h-5 w-5 text-success-600" />} iconBg="bg-success-100" />
       </div>
 
       <Tabs defaultValue="courses">
@@ -91,28 +112,32 @@ export default function TeacherProfileClient() {
           <Card>
             <CardHeader><CardTitle className="text-base">Cours dispenses</CardTitle></CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Matiere</TableHead>
-                    <TableHead>Classe</TableHead>
-                    <TableHead>Heures/sem</TableHead>
-                    <TableHead>Etudiants</TableHead>
-                    <TableHead>Salle</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {courses.map((c, i) => (
-                    <TableRow key={i}>
-                      <TableCell className="font-medium">{c.subject}</TableCell>
-                      <TableCell>{c.class}</TableCell>
-                      <TableCell>{c.hours}h</TableCell>
-                      <TableCell>{c.students}</TableCell>
-                      <TableCell className="text-muted-foreground">{c.room}</TableCell>
+              {teacherCourses.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">Aucun cours attribue</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Matiere</TableHead>
+                      <TableHead>Code</TableHead>
+                      <TableHead>Classe</TableHead>
+                      <TableHead>Heures/sem</TableHead>
+                      <TableHead>Salle</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {teacherCourses.map((c) => (
+                      <TableRow key={c.id}>
+                        <TableCell className="font-medium">{c.name}</TableCell>
+                        <TableCell className="text-muted-foreground">{c.code}</TableCell>
+                        <TableCell>{c.class}</TableCell>
+                        <TableCell>{c.hours}h</TableCell>
+                        <TableCell className="text-muted-foreground">{c.room}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -121,21 +146,26 @@ export default function TeacherProfileClient() {
           <Card>
             <CardHeader><CardTitle className="text-base">Emploi du temps hebdomadaire</CardTitle></CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {schedule.map((s, i) => (
-                  <div key={i} className="flex items-center gap-4 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors">
-                    <div className="text-center shrink-0 w-24">
-                      <p className="text-xs font-semibold text-primary-600">{s.day}</p>
-                      <p className="text-xs text-muted-foreground">{s.time}</p>
+              {teacherSchedule.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">Aucun cours programme</p>
+              ) : (
+                <div className="space-y-3">
+                  {teacherSchedule.map((s) => (
+                    <div key={s.id} className="flex items-center gap-4 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors">
+                      <div className="text-center shrink-0 w-24">
+                        <p className="text-xs font-semibold text-primary-600">{days[s.day]}</p>
+                        <p className="text-xs text-muted-foreground">{s.startHour}:00 - {s.startHour + s.duration}:00</p>
+                      </div>
+                      <div className="h-8 w-px bg-border" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{s.subject}</p>
+                        <p className="text-xs text-muted-foreground">{s.class} - {s.room}</p>
+                      </div>
+                      <Badge variant="outline" className="text-xs">{s.type === "cours" ? "Cours" : s.type === "td" ? "TD/TP" : "Examen"}</Badge>
                     </div>
-                    <div className="h-8 w-px bg-border" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{s.subject}</p>
-                      <p className="text-xs text-muted-foreground">{s.class} - {s.room}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -146,8 +176,6 @@ export default function TeacherProfileClient() {
               <CardHeader><CardTitle className="text-base">Informations personnelles</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <InfoRow label="Nom complet" value={teacher.name} />
-                <InfoRow label="Date de naissance" value={teacher.dateOfBirth} />
-                <InfoRow label="Adresse" value={teacher.address} />
                 <InfoRow label="Email" value={teacher.email} />
                 <InfoRow label="Telephone" value={teacher.phone} />
               </CardContent>
@@ -155,11 +183,11 @@ export default function TeacherProfileClient() {
             <Card>
               <CardHeader><CardTitle className="text-base">Informations professionnelles</CardTitle></CardHeader>
               <CardContent className="space-y-4">
+                <InfoRow label="ID Employe" value={teacher.employeeId} />
                 <InfoRow label="Departement" value={teacher.department} />
                 <InfoRow label="Specialisation" value={teacher.specialization} />
-                <InfoRow label="Qualification" value={teacher.qualification} />
-                <InfoRow label="Date d'embauche" value={teacher.hireDate} />
                 <InfoRow label="Type de contrat" value={teacher.contractType} />
+                <InfoRow label="Statut" value={teacher.status === "active" ? "Actif" : teacher.status === "on_leave" ? "En conge" : "Inactif"} />
               </CardContent>
             </Card>
           </div>

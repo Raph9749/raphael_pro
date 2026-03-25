@@ -1,27 +1,25 @@
 "use client";
 
-import { Plus, Users, BookOpen, MapPin } from "lucide-react";
+import * as React from "react";
+import { Plus, Users, MapPin, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { Progress } from "@/components/ui/progress";
 import { UserAvatar } from "@/components/ui/avatar";
-
-const classes = [
-  { id: "1", name: "L1 Informatique A", code: "L1-INFO-A", program: "Informatique", level: 1, students: 45, capacity: 50, teacher: "Dr. Kamga", room: "Salle 101", status: "active" },
-  { id: "2", name: "L1 Informatique B", code: "L1-INFO-B", program: "Informatique", level: 1, students: 42, capacity: 50, teacher: "Pr. Nkoulou", room: "Salle 102", status: "active" },
-  { id: "3", name: "L2 Informatique A", code: "L2-INFO-A", program: "Informatique", level: 2, students: 35, capacity: 40, teacher: "Dr. Kamga", room: "Salle 201", status: "active" },
-  { id: "4", name: "L2 Informatique B", code: "L2-INFO-B", program: "Informatique", level: 2, students: 32, capacity: 40, teacher: "M. Tamba", room: "Salle 202", status: "active" },
-  { id: "5", name: "L3 Informatique", code: "L3-INFO", program: "Informatique", level: 3, students: 28, capacity: 35, teacher: "Pr. Nkoulou", room: "Salle 301", status: "active" },
-  { id: "6", name: "L1 Gestion A", code: "L1-GEST-A", program: "Gestion", level: 1, students: 48, capacity: 50, teacher: "Dr. Mbarga", room: "Amphi B", status: "active" },
-  { id: "7", name: "L1 Gestion B", code: "L1-GEST-B", program: "Gestion", level: 1, students: 46, capacity: 50, teacher: "M. Fouda", room: "Amphi C", status: "active" },
-  { id: "8", name: "L2 Gestion", code: "L2-GEST", program: "Gestion", level: 2, students: 38, capacity: 45, teacher: "Dr. Mbarga", room: "Salle 203", status: "active" },
-  { id: "9", name: "L3 Gestion", code: "L3-GEST", program: "Gestion", level: 3, students: 25, capacity: 35, teacher: "M. Fouda", room: "Salle 302", status: "active" },
-  { id: "10", name: "L1 Marketing", code: "L1-MKT", program: "Marketing", level: 1, students: 40, capacity: 45, teacher: "Mme. Ekotto", room: "Salle 103", status: "active" },
-  { id: "11", name: "L2 Marketing", code: "L2-MKT", program: "Marketing", level: 2, students: 32, capacity: 40, teacher: "Mme. Ekotto", room: "Salle 204", status: "active" },
-  { id: "12", name: "M1 Finance", code: "M1-FIN", program: "Finance", level: 4, students: 22, capacity: 30, teacher: "Mme. Abena", room: "Salle 401", status: "active" },
-];
+import { Input } from "@/components/ui/input";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  getClasses, addClass, updateClass, deleteClass,
+  getTeacherNames, PROGRAMS, ROOMS,
+  type ClassGroup,
+} from "@/lib/mock-data";
 
 const programColors: Record<string, string> = {
   Informatique: "bg-primary-100 text-primary-700",
@@ -31,11 +29,81 @@ const programColors: Record<string, string> = {
   Droit: "bg-amber-100 text-amber-700",
 };
 
+const emptyForm = {
+  name: "",
+  code: "",
+  program: "",
+  level: "1",
+  students: "0",
+  capacity: "40",
+  teacher: "",
+  room: "",
+};
+
 export default function ClassesPage() {
+  const [classes, setClasses] = React.useState<ClassGroup[]>([]);
+  const [showForm, setShowForm] = React.useState(false);
+  const [editId, setEditId] = React.useState<string | null>(null);
+  const [form, setForm] = React.useState(emptyForm);
+  const [showDelete, setShowDelete] = React.useState<string | null>(null);
+
+  React.useEffect(() => { setClasses(getClasses()); }, []);
+
+  const teacherNames = getTeacherNames();
+
+  const openAdd = () => {
+    setForm(emptyForm);
+    setEditId(null);
+    setShowForm(true);
+  };
+
+  const openEdit = (cls: ClassGroup) => {
+    setForm({
+      name: cls.name,
+      code: cls.code,
+      program: cls.program,
+      level: String(cls.level),
+      students: String(cls.students),
+      capacity: String(cls.capacity),
+      teacher: cls.teacher,
+      room: cls.room,
+    });
+    setEditId(cls.id);
+    setShowForm(true);
+  };
+
+  const handleSave = () => {
+    if (!form.name || !form.code || !form.program || !form.teacher || !form.room) return;
+    const data = {
+      name: form.name,
+      code: form.code,
+      program: form.program,
+      level: Number(form.level),
+      students: Number(form.students),
+      capacity: Number(form.capacity),
+      teacher: form.teacher,
+      room: form.room,
+      status: "active" as const,
+    };
+    if (editId) {
+      updateClass(editId, data);
+    } else {
+      addClass(data);
+    }
+    setClasses(getClasses());
+    setShowForm(false);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteClass(id);
+    setClasses(getClasses());
+    setShowDelete(null);
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader title="Classes" description="Gerez les classes et groupes de votre etablissement">
-        <Button size="sm" leftIcon={<Plus className="h-4 w-4" />}>
+        <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={openAdd}>
           Nouvelle classe
         </Button>
       </PageHeader>
@@ -44,16 +112,26 @@ export default function ClassesPage() {
         {classes.map((cls) => {
           const fillPercent = Math.round((cls.students / cls.capacity) * 100);
           return (
-            <Card key={cls.id} className="hover:shadow-card-hover transition-shadow cursor-pointer">
+            <Card key={cls.id} className="hover:shadow-card-hover transition-shadow group">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-sm font-semibold text-foreground">{cls.name}</h3>
                     <p className="text-xs text-muted-foreground mt-0.5">{cls.code}</p>
                   </div>
-                  <Badge className={programColors[cls.program] || "bg-muted text-muted-foreground"}>
-                    {cls.program}
-                  </Badge>
+                  <div className="flex items-center gap-1">
+                    <Badge className={programColors[cls.program] || "bg-muted text-muted-foreground"}>
+                      {cls.program}
+                    </Badge>
+                    <div className="hidden group-hover:flex items-center gap-0.5 ml-1">
+                      <Button variant="ghost" size="icon-sm" onClick={() => openEdit(cls)}>
+                        <Edit className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon-sm" onClick={() => setShowDelete(cls.id)}>
+                        <Trash2 className="h-3.5 w-3.5 text-error-500" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -89,6 +167,118 @@ export default function ClassesPage() {
           );
         })}
       </div>
+
+      {/* Add/Edit Dialog */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editId ? "Modifier la classe" : "Nouvelle classe"}</DialogTitle>
+            <DialogDescription>
+              {editId ? "Modifiez les informations de la classe" : "Remplissez les informations pour creer une nouvelle classe"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label="Nom de la classe"
+                placeholder="Ex: L2 Informatique A"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                required
+              />
+              <Input
+                label="Code"
+                placeholder="Ex: L2-INFO-A"
+                value={form.code}
+                onChange={(e) => setForm({ ...form, code: e.target.value })}
+                required
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Programme</label>
+                <Select value={form.program} onValueChange={(v) => setForm({ ...form, program: v })}>
+                  <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
+                  <SelectContent>
+                    {PROGRAMS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Niveau</label>
+                <Select value={form.level} onValueChange={(v) => setForm({ ...form, level: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">Licence 1</SelectItem>
+                    <SelectItem value="2">Licence 2</SelectItem>
+                    <SelectItem value="3">Licence 3</SelectItem>
+                    <SelectItem value="4">Master 1</SelectItem>
+                    <SelectItem value="5">Master 2</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input
+                label="Nombre d'etudiants"
+                type="number"
+                value={form.students}
+                onChange={(e) => setForm({ ...form, students: e.target.value })}
+              />
+              <Input
+                label="Capacite"
+                type="number"
+                value={form.capacity}
+                onChange={(e) => setForm({ ...form, capacity: e.target.value })}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Enseignant responsable</label>
+                <Select value={form.teacher} onValueChange={(v) => setForm({ ...form, teacher: v })}>
+                  <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
+                  <SelectContent>
+                    {teacherNames.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">Salle</label>
+                <Select value={form.room} onValueChange={(v) => setForm({ ...form, room: v })}>
+                  <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
+                  <SelectContent>
+                    {ROOMS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowForm(false)}>Annuler</Button>
+            <Button onClick={handleSave} disabled={!form.name || !form.code || !form.program || !form.teacher || !form.room}>
+              {editId ? "Modifier" : "Creer"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation */}
+      <Dialog open={!!showDelete} onOpenChange={() => setShowDelete(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Supprimer la classe</DialogTitle>
+            <DialogDescription>
+              Etes-vous sur de vouloir supprimer cette classe ? Cette action est irreversible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowDelete(null)}>Annuler</Button>
+            <Button variant="destructive" onClick={() => showDelete && handleDelete(showDelete)}>
+              Supprimer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
