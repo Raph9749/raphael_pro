@@ -190,7 +190,7 @@ export default function SettingsPage() {
               <CardDescription>Configurez quand et comment recevoir des notifications</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {isAdmin || isStaff ? (
+              {(isAdmin || isStaff) ? (
                 // Admin/Staff notifications
                 [
                   { title: "Nouveaux etudiants inscrits", desc: "Recevoir une notification quand un nouvel etudiant s'inscrit", enabled: true },

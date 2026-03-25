@@ -11,8 +11,10 @@ import { cn } from "@/lib/utils";
 import { useRole } from "@/hooks/use-role";
 import {
   getCourses, getGrades, saveGrades, exportGradesCSV, downloadCSV,
+  getStudentByLastName,
   type StudentGrade, type Course,
 } from "@/lib/mock-data";
+import { useAuthStore } from "@/stores/auth-store";
 
 function calcAvg(s: StudentGrade) {
   return s.cc1 * 0.2 + s.cc2 * 0.2 + s.tp * 0.2 + s.exam * 0.4;
@@ -37,19 +39,52 @@ export default function GradesPage() {
   const [saved, setSaved] = React.useState(false);
   const [editCell, setEditCell] = React.useState<{ idx: number; field: keyof StudentGrade } | null>(null);
   const [editValue, setEditValue] = React.useState("");
-  const { canTeach, isStudent, isParent } = useRole();
+  const { canTeach, isStudent, isParent, isTeacher } = useRole();
+  const { user } = useAuthStore();
 
   React.useEffect(() => {
-    const allCourses = getCourses();
+    let allCourses = getCourses();
+    const grades = getGrades();
+
+    // Students only see courses for their class
+    if (isStudent && user) {
+      const me = getStudentByLastName(user.last_name);
+      if (me) {
+        const parts = me.classe.split(" ");
+        const level = parts[0] || "";
+        const progShort = parts.length >= 2 ? parts[1].substring(0, 4) : "";
+        const section = parts[2] || "";
+        const shortWithSection = `${level} ${progShort} ${section}`.trim().toLowerCase();
+        const shortNoSection = `${level} ${progShort}`.trim().toLowerCase();
+        const fullLower = me.classe.toLowerCase();
+        allCourses = allCourses.filter((c) => {
+          const cl = c.class.toLowerCase().trim();
+          return cl === shortWithSection || cl === shortNoSection || cl === fullLower;
+        });
+      }
+    }
+
+    // Teachers only see courses they teach
+    if (isTeacher && user) {
+      const lastName = user.last_name.toLowerCase();
+      allCourses = allCourses.filter((c) => c.teacher.toLowerCase().includes(lastName));
+    }
+
     setCourses(allCourses);
-    setAllGrades(getGrades());
+    setAllGrades(grades);
     if (allCourses.length > 0) {
       setSelectedCourse(`${allCourses[0].id}-${allCourses[0].code}`);
     }
-  }, []);
+  }, [isStudent, isTeacher, user]);
 
   const currentCourse = courses.find((c) => `${c.id}-${c.code}` === selectedCourse);
-  const students = allGrades[selectedCourse] || [];
+  const allStudentsForCourse = allGrades[selectedCourse] || [];
+  // Students only see their own grades
+  const students = (isStudent && user) ? (() => {
+    const me = getStudentByLastName(user.last_name);
+    const myName = me?.name || `${user.first_name} ${user.last_name}`;
+    return allStudentsForCourse.filter((s) => s.name === myName);
+  })() : allStudentsForCourse;
 
   const startEdit = (idx: number, field: keyof StudentGrade, value: number) => {
     if (!canTeach) return;

@@ -78,26 +78,30 @@ export default function SchedulePage() {
   const { canManage, canTeach, isStudent, isParent, isTeacher, user } = useRole();
   const [monthOffset, setMonthOffset] = React.useState(0);
 
+  // Build a matcher for a student's full class name (e.g. "L2 Informatique A")
+  // Matches: exact full name, short with section ("L2 Info A"), general without section ("L2 Info")
+  const buildClassMatcher = React.useCallback((fullClass: string) => {
+    const parts = fullClass.split(" ");
+    const level = parts[0] || "";
+    const progShort = parts.length >= 2 ? parts[1].substring(0, 4) : "";
+    const section = parts[2] || "";
+    const shortWithSection = `${level} ${progShort} ${section}`.trim().toLowerCase();
+    const shortNoSection = `${level} ${progShort}`.trim().toLowerCase();
+    const fullLower = fullClass.toLowerCase();
+    return (className: string) => {
+      const cl = className.toLowerCase().trim();
+      return cl === shortWithSection || cl === shortNoSection || cl === fullLower;
+    };
+  }, []);
+
   React.useEffect(() => {
     let allEvents = getEvents();
     // Students only see events for their class
     if (isStudent && user) {
       const me = getStudentByLastName(user.last_name);
       if (me) {
-        const fullClass = me.classe;
-        const parts = fullClass.split(" ");
-        const shortNames: string[] = [fullClass.toLowerCase()];
-        if (parts.length >= 2) {
-          const level = parts[0];
-          const progShort = parts[1].substring(0, 4);
-          const section = parts[2] || "";
-          shortNames.push(`${level} ${progShort} ${section}`.trim().toLowerCase());
-          shortNames.push(`${level} ${progShort}`.toLowerCase());
-        }
-        allEvents = allEvents.filter((e) => {
-          const eLower = e.class.toLowerCase();
-          return shortNames.some((sn) => eLower === sn || eLower.includes(sn) || sn.includes(eLower));
-        });
+        const matchesMyClass = buildClassMatcher(me.classe);
+        allEvents = allEvents.filter((e) => matchesMyClass(e.class));
       }
     }
     // Teachers only see their own events
@@ -107,29 +111,16 @@ export default function SchedulePage() {
         e.teacher.includes(lastName) || e.teacher === `${user.first_name} ${user.last_name}`
       );
     }
-    // Parents see their child's class events (based on linked student)
+    // Parents see their child's class events
     if (isParent && user) {
-      // For demo, parent Atangana's child is Paul Atangana
       const child = getStudentByLastName(user.last_name);
       if (child) {
-        const fullClass = child.classe;
-        const parts = fullClass.split(" ");
-        const shortNames: string[] = [fullClass.toLowerCase()];
-        if (parts.length >= 2) {
-          const level = parts[0];
-          const progShort = parts[1].substring(0, 4);
-          const section = parts[2] || "";
-          shortNames.push(`${level} ${progShort} ${section}`.trim().toLowerCase());
-          shortNames.push(`${level} ${progShort}`.toLowerCase());
-        }
-        allEvents = allEvents.filter((e) => {
-          const eLower = e.class.toLowerCase();
-          return shortNames.some((sn) => eLower === sn || eLower.includes(sn) || sn.includes(eLower));
-        });
+        const matchesChildClass = buildClassMatcher(child.classe);
+        allEvents = allEvents.filter((e) => matchesChildClass(e.class));
       }
     }
     setEvents(allEvents);
-  }, [isStudent, isTeacher, isParent, user]);
+  }, [isStudent, isTeacher, isParent, user, buildClassMatcher]);
 
   const { dates, label } = getWeekDates(weekOffset);
   const teacherNames = getTeacherNames();

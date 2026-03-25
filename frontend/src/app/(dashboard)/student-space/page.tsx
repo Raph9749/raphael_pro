@@ -52,46 +52,34 @@ export default function StudentSpacePage() {
     const programme = me?.programme || "";
     setStudentInfo({ name: myName, classe: fullClass, programme });
 
-    // Find the matching ClassGroup to get short class name used in courses/events
-    const allClasses = getClasses();
-    const classGroup = allClasses.find((c) => c.name === fullClass);
-    // Build possible short class names for matching
-    const shortNames: string[] = [];
-    if (classGroup) {
-      shortNames.push(classGroup.name); // e.g. "L2 Informatique A"
-    }
-    // Extract short form: "L2 Informatique A" -> try "L2 Info A", "L2 Info", etc.
+    // Build short class name for matching courses/events
+    // e.g. "L2 Informatique A" -> exact matches: "L2 Info A", "L2 Info" (general)
     const parts = fullClass.split(" ");
-    if (parts.length >= 2) {
-      const level = parts[0]; // e.g. "L2"
-      const progShort = parts[1].substring(0, 4); // e.g. "Info"
-      const section = parts[2] || ""; // e.g. "A"
-      shortNames.push(`${level} ${progShort} ${section}`.trim());
-      shortNames.push(`${level} ${progShort}`);
-    }
+    const level = parts[0] || ""; // e.g. "L2"
+    const progShort = parts.length >= 2 ? parts[1].substring(0, 4) : ""; // e.g. "Info"
+    const section = parts[2] || ""; // e.g. "A"
+    const shortWithSection = `${level} ${progShort} ${section}`.trim().toLowerCase(); // "l2 info a"
+    const shortNoSection = `${level} ${progShort}`.trim().toLowerCase(); // "l2 info"
+    const fullLower = fullClass.toLowerCase(); // "l2 informatique a"
+
+    // Match: exact short name with section, OR exact general class (no section), OR full class name
+    const matchesMyClass = (className: string) => {
+      const cl = className.toLowerCase().trim();
+      return cl === shortWithSection || cl === shortNoSection || cl === fullLower;
+    };
 
     // Today's events for student's class
     const today = new Date();
     const dayOfWeek = (today.getDay() + 6) % 7;
     const allEvents = getEvents();
     const myEvents = allEvents.filter((e) =>
-      e.day === dayOfWeek && shortNames.some((sn) => {
-        const eLower = e.class.toLowerCase();
-        const snLower = sn.toLowerCase();
-        return eLower === snLower || eLower.includes(snLower) || snLower.includes(eLower);
-      })
+      e.day === dayOfWeek && matchesMyClass(e.class)
     ).sort((a, b) => a.startHour - b.startHour);
     setTodayEvents(myEvents);
 
     // Courses for this class
     const allCourses = getCourses();
-    const myCourses = allCourses.filter((c) =>
-      shortNames.some((sn) => {
-        const cLower = c.class.toLowerCase();
-        const snLower = sn.toLowerCase();
-        return cLower === snLower || cLower.includes(snLower) || snLower.includes(cLower);
-      })
-    );
+    const myCourses = allCourses.filter((c) => matchesMyClass(c.class));
     setTotalCourses(myCourses.length);
 
     // Get grades for this student
