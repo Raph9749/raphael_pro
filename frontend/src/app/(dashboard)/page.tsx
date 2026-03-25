@@ -1,5 +1,9 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/auth-store";
+import { getRoleDashboardPath } from "@/lib/mock-auth";
 import {
   GraduationCap,
   Users,
@@ -108,6 +112,23 @@ const quickActions = [
 ];
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    if (user && user.role !== "admin") {
+      router.replace(getRoleDashboardPath(user.role));
+    }
+  }, [user, router]);
+
+  if (!user || user.role !== "admin") {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+      </div>
+    );
+  }
+
   const today = new Date().toLocaleDateString("fr-FR", {
     weekday: "long",
     year: "numeric",
@@ -121,7 +142,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-foreground tracking-tight">
-            Bonjour, Jean-Pierre
+            Bonjour, {user.first_name}
           </h1>
           <p className="text-sm text-muted-foreground mt-1 capitalize">{today}</p>
         </div>
@@ -197,22 +218,8 @@ export default function DashboardPage() {
                   }}
                 />
                 <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="total"
-                  stroke="#4F46E5"
-                  strokeWidth={2.5}
-                  dot={{ fill: "#4F46E5", r: 4 }}
-                  name="Total"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="nouveaux"
-                  stroke="#06B6D4"
-                  strokeWidth={2.5}
-                  dot={{ fill: "#06B6D4", r: 4 }}
-                  name="Nouveaux"
-                />
+                <Line type="monotone" dataKey="total" stroke="#4F46E5" strokeWidth={2.5} dot={{ fill: "#4F46E5", r: 4 }} name="Total" />
+                <Line type="monotone" dataKey="nouveaux" stroke="#06B6D4" strokeWidth={2.5} dot={{ fill: "#06B6D4", r: 4 }} name="Nouveaux" />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -262,14 +269,7 @@ export default function DashboardPage() {
                     <stop offset="100%" stopColor="#06B6D4" stopOpacity={0.05} />
                   </linearGradient>
                 </defs>
-                <Area
-                  type="monotone"
-                  dataKey="taux"
-                  stroke="#06B6D4"
-                  strokeWidth={2.5}
-                  fill="url(#attendanceGradient)"
-                  name="Taux"
-                />
+                <Area type="monotone" dataKey="taux" stroke="#06B6D4" strokeWidth={2.5} fill="url(#attendanceGradient)" name="Taux" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -313,7 +313,6 @@ export default function DashboardPage() {
 
       {/* Bottom Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Recent Activity */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base font-semibold">Activite recente</CardTitle>
@@ -341,7 +340,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Today's Schedule */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-base font-semibold">Emploi du temps du jour</CardTitle>

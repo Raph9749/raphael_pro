@@ -1,10 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Bell, Search, Plus, ChevronDown, User, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/avatar";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { useAuthStore } from "@/stores/auth-store";
+import { getRoleLabel } from "@/lib/mock-auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +18,19 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Topbar() {
+  const router = useRouter();
+  const { user, logout } = useAuthStore();
+
+  const displayName = user ? `${user.first_name} ${user.last_name}` : "Utilisateur";
+  const shortName = user ? `${user.first_name} ${user.last_name.charAt(0)}.` : "Utilisateur";
+  const roleLabel = user ? getRoleLabel(user.role) : "Utilisateur";
+  const email = user?.email || "";
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
+
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-white px-6">
       {/* Left: Breadcrumb */}
@@ -45,34 +61,29 @@ export function Topbar() {
           <span className="font-medium text-foreground">2025-2026</span>
         </div>
 
-        {/* Quick Actions */}
-        <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-          <Plus className="h-4 w-4" />
-        </button>
-
         {/* Notifications */}
         <button className="relative flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
           <Bell className="h-4 w-4" />
           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-error-500 text-[10px] font-bold text-white">
-            5
+            3
           </span>
         </button>
 
         {/* User Menu */}
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-muted transition-colors focus:outline-none">
-            <UserAvatar name="Jean-Pierre Mbarga" size="sm" />
+            <UserAvatar name={displayName} size="sm" />
             <div className="hidden md:block text-left">
-              <p className="text-sm font-medium text-foreground leading-tight">Jean-Pierre M.</p>
-              <p className="text-xs text-muted-foreground leading-tight">Admin</p>
+              <p className="text-sm font-medium text-foreground leading-tight">{shortName}</p>
+              <p className="text-xs text-muted-foreground leading-tight">{roleLabel}</p>
             </div>
             <ChevronDown className="hidden md:block h-4 w-4 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">Jean-Pierre Mbarga</span>
-                <span className="text-xs text-muted-foreground">jp.mbarga@scholarpro.cm</span>
+                <span className="text-sm font-medium">{displayName}</span>
+                <span className="text-xs text-muted-foreground">{email}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
@@ -85,7 +96,10 @@ export function Topbar() {
               Parametres
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 text-error-500 focus:text-error-500 cursor-pointer">
+            <DropdownMenuItem
+              className="gap-2 text-error-500 focus:text-error-500 cursor-pointer"
+              onClick={handleLogout}
+            >
               <LogOut className="h-4 w-4" />
               Deconnexion
             </DropdownMenuItem>

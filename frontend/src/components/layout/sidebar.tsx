@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   GraduationCap,
@@ -23,9 +23,18 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Clock,
+  Bell,
+  TrendingUp,
+  ClipboardList,
+  FolderOpen,
+  Phone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/avatar";
+import { useAuthStore } from "@/stores/auth-store";
+import { getRoleLabel } from "@/lib/mock-auth";
+import type { User } from "@/types";
 
 interface NavItem {
   label: string;
@@ -38,52 +47,206 @@ interface NavSection {
   items: NavItem[];
 }
 
-const navSections: NavSection[] = [
-  {
-    title: "PRINCIPAL",
-    items: [
-      { label: "Tableau de bord", href: "/", icon: LayoutDashboard },
-    ],
-  },
-  {
-    title: "ACADEMIQUE",
-    items: [
-      { label: "Etudiants", href: "/students", icon: GraduationCap },
-      { label: "Enseignants", href: "/teachers", icon: Users },
-      { label: "Programmes", href: "/programs", icon: BookOpen },
-      { label: "Classes", href: "/classes", icon: School },
-      { label: "Emploi du temps", href: "/schedule", icon: Calendar },
-      { label: "Notes", href: "/grades", icon: Award },
-      { label: "Presence", href: "/attendance", icon: ClipboardCheck },
-    ],
-  },
-  {
-    title: "GESTION",
-    items: [
-      { label: "Admissions", href: "/admissions", icon: UserPlus },
-      { label: "Finance", href: "/finance", icon: CreditCard },
-      { label: "Communication", href: "/communication", icon: MessageSquare },
-      { label: "Documents", href: "/documents", icon: FileText },
-      { label: "Stages", href: "/internships", icon: Briefcase },
-      { label: "Evenements", href: "/events", icon: CalendarDays },
-    ],
-  },
-  {
-    title: "SYSTEME",
-    items: [
-      { label: "Analytique", href: "/analytics", icon: BarChart3 },
-      { label: "Parametres", href: "/settings", icon: Settings },
-    ],
-  },
-];
+function getNavSections(role: User["role"]): NavSection[] {
+  switch (role) {
+    case "admin":
+      return [
+        {
+          title: "PRINCIPAL",
+          items: [
+            { label: "Tableau de bord", href: "/", icon: LayoutDashboard },
+          ],
+        },
+        {
+          title: "ACADEMIQUE",
+          items: [
+            { label: "Etudiants", href: "/students", icon: GraduationCap },
+            { label: "Enseignants", href: "/teachers", icon: Users },
+            { label: "Programmes", href: "/programs", icon: BookOpen },
+            { label: "Classes", href: "/classes", icon: School },
+            { label: "Emploi du temps", href: "/schedule", icon: Calendar },
+            { label: "Notes", href: "/grades", icon: Award },
+            { label: "Presence", href: "/attendance", icon: ClipboardCheck },
+          ],
+        },
+        {
+          title: "GESTION",
+          items: [
+            { label: "Admissions", href: "/admissions", icon: UserPlus },
+            { label: "Finance", href: "/finance", icon: CreditCard },
+            { label: "Communication", href: "/communication", icon: MessageSquare },
+            { label: "Documents", href: "/documents", icon: FileText },
+            { label: "Stages", href: "/internships", icon: Briefcase },
+            { label: "Evenements", href: "/events", icon: CalendarDays },
+          ],
+        },
+        {
+          title: "SYSTEME",
+          items: [
+            { label: "Analytique", href: "/analytics", icon: BarChart3 },
+            { label: "Parametres", href: "/settings", icon: Settings },
+          ],
+        },
+      ];
+
+    case "teacher":
+      return [
+        {
+          title: "PRINCIPAL",
+          items: [
+            { label: "Mon espace", href: "/teacher-space", icon: LayoutDashboard },
+          ],
+        },
+        {
+          title: "ENSEIGNEMENT",
+          items: [
+            { label: "Mes classes", href: "/classes", icon: School },
+            { label: "Emploi du temps", href: "/schedule", icon: Calendar },
+            { label: "Saisie de notes", href: "/grades", icon: Award },
+            { label: "Presence", href: "/attendance", icon: ClipboardCheck },
+          ],
+        },
+        {
+          title: "SUIVI",
+          items: [
+            { label: "Mes etudiants", href: "/students", icon: GraduationCap },
+            { label: "Communication", href: "/communication", icon: MessageSquare },
+            { label: "Documents", href: "/documents", icon: FileText },
+          ],
+        },
+        {
+          title: "COMPTE",
+          items: [
+            { label: "Parametres", href: "/settings", icon: Settings },
+          ],
+        },
+      ];
+
+    case "student":
+      return [
+        {
+          title: "PRINCIPAL",
+          items: [
+            { label: "Mon espace", href: "/student-space", icon: LayoutDashboard },
+          ],
+        },
+        {
+          title: "SCOLARITE",
+          items: [
+            { label: "Emploi du temps", href: "/schedule", icon: Calendar },
+            { label: "Mes notes", href: "/grades", icon: Award },
+            { label: "Presence", href: "/attendance", icon: ClipboardCheck },
+          ],
+        },
+        {
+          title: "INFORMATIONS",
+          items: [
+            { label: "Documents", href: "/documents", icon: FileText },
+            { label: "Evenements", href: "/events", icon: CalendarDays },
+            { label: "Communication", href: "/communication", icon: MessageSquare },
+            { label: "Stage", href: "/internships", icon: Briefcase },
+          ],
+        },
+        {
+          title: "COMPTE",
+          items: [
+            { label: "Parametres", href: "/settings", icon: Settings },
+          ],
+        },
+      ];
+
+    case "parent":
+      return [
+        {
+          title: "PRINCIPAL",
+          items: [
+            { label: "Mon espace", href: "/parent-space", icon: LayoutDashboard },
+          ],
+        },
+        {
+          title: "SUIVI ENFANT",
+          items: [
+            { label: "Notes", href: "/grades", icon: Award },
+            { label: "Presence", href: "/attendance", icon: ClipboardCheck },
+            { label: "Emploi du temps", href: "/schedule", icon: Calendar },
+          ],
+        },
+        {
+          title: "GESTION",
+          items: [
+            { label: "Paiements", href: "/finance", icon: CreditCard },
+            { label: "Documents", href: "/documents", icon: FileText },
+            { label: "Communication", href: "/communication", icon: MessageSquare },
+            { label: "Evenements", href: "/events", icon: CalendarDays },
+          ],
+        },
+        {
+          title: "COMPTE",
+          items: [
+            { label: "Parametres", href: "/settings", icon: Settings },
+          ],
+        },
+      ];
+
+    case "staff":
+      return [
+        {
+          title: "PRINCIPAL",
+          items: [
+            { label: "Mon espace", href: "/staff-space", icon: LayoutDashboard },
+          ],
+        },
+        {
+          title: "ADMINISTRATION",
+          items: [
+            { label: "Etudiants", href: "/students", icon: GraduationCap },
+            { label: "Admissions", href: "/admissions", icon: UserPlus },
+            { label: "Finance", href: "/finance", icon: CreditCard },
+            { label: "Documents", href: "/documents", icon: FileText },
+          ],
+        },
+        {
+          title: "ORGANISATION",
+          items: [
+            { label: "Communication", href: "/communication", icon: MessageSquare },
+            { label: "Evenements", href: "/events", icon: CalendarDays },
+            { label: "Emploi du temps", href: "/schedule", icon: Calendar },
+          ],
+        },
+        {
+          title: "COMPTE",
+          items: [
+            { label: "Parametres", href: "/settings", icon: Settings },
+          ],
+        },
+      ];
+
+    default:
+      return [];
+  }
+}
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(false);
+  const { user, logout } = useAuthStore();
+
+  const role = user?.role || "admin";
+  const navSections = getNavSections(role);
+  const displayName = user ? `${user.first_name} ${user.last_name}` : "Utilisateur";
+  const roleLabel = getRoleLabel(role);
 
   const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
+    if (href === "/" || href === "/teacher-space" || href === "/student-space" || href === "/parent-space" || href === "/staff-space") {
+      return pathname === href;
+    }
     return pathname.startsWith(href);
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
   };
 
   return (
@@ -175,15 +338,19 @@ export function Sidebar() {
             collapsed && "justify-center"
           )}
         >
-          <UserAvatar name="Jean-Pierre Mbarga" size="sm" />
+          <UserAvatar name={displayName} size="sm" />
           {!collapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">Jean-Pierre Mbarga</p>
-              <p className="text-xs text-muted-foreground truncate">Administrateur</p>
+              <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
+              <p className="text-xs text-muted-foreground truncate">{roleLabel}</p>
             </div>
           )}
           {!collapsed && (
-            <button className="shrink-0 rounded-lg p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+            <button
+              onClick={handleLogout}
+              className="shrink-0 rounded-lg p-1 text-muted-foreground hover:text-error-500 hover:bg-error-50 transition-colors"
+              title="Deconnexion"
+            >
               <LogOut className="h-4 w-4" />
             </button>
           )}
