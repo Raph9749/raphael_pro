@@ -58,10 +58,10 @@ const recentGrades = [
 ];
 
 const payments = [
-  { label: "Scolarite S2", amount: "350,000 FCFA", status: "paid", date: "15 Jan 2026" },
-  { label: "Frais d'examen", amount: "25,000 FCFA", status: "pending", date: "30 Mars 2026" },
-  { label: "Scolarite S1", amount: "350,000 FCFA", status: "paid", date: "15 Sep 2025" },
-  { label: "Inscription", amount: "50,000 FCFA", status: "paid", date: "1 Sep 2025" },
+  { label: "Scolarite S2", amount: "350,000 EUR", status: "paid", date: "15 Jan 2026" },
+  { label: "Frais d'examen", amount: "25,000 EUR", status: "pending", date: "30 Mars 2026" },
+  { label: "Scolarite S1", amount: "350,000 EUR", status: "paid", date: "15 Sep 2025" },
+  { label: "Inscription", amount: "50,000 EUR", status: "paid", date: "1 Sep 2025" },
 ];
 
 const absences = [

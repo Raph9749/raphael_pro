@@ -19,6 +19,7 @@ import {
   getTeacherNames, getClassNames, getCourseNames, ROOMS,
   type ScheduleEvent,
 } from "@/lib/mock-data";
+import { useRole, getStudentShortClass } from "@/hooks/use-role";
 
 const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 const hours = Array.from({ length: 11 }, (_, i) => `${i + 8}:00`);
@@ -73,8 +74,32 @@ export default function SchedulePage() {
   const [editId, setEditId] = React.useState<string | null>(null);
   const [form, setForm] = React.useState(emptyForm);
   const [showDetail, setShowDetail] = React.useState<ScheduleEvent | null>(null);
+  const { canTeach, isStudent, isParent, isTeacher, user } = useRole();
 
-  React.useEffect(() => { setEvents(getEvents()); }, []);
+  React.useEffect(() => {
+    let allEvents = getEvents();
+    // Students only see events for their class
+    if (isStudent) {
+      const studentClass = getStudentShortClass(user?.id);
+      allEvents = allEvents.filter((e) =>
+        e.class === studentClass || e.class.includes("Info") && studentClass.includes("Info")
+      );
+    }
+    // Teachers only see their own events
+    if (isTeacher && user) {
+      const lastName = user.last_name;
+      allEvents = allEvents.filter((e) =>
+        e.teacher.includes(lastName) || e.teacher === `${user.first_name} ${user.last_name}`
+      );
+    }
+    // Parents see their child's class events
+    if (isParent) {
+      allEvents = allEvents.filter((e) =>
+        e.class.includes("Info") // child is in L2 Info A
+      );
+    }
+    setEvents(allEvents);
+  }, [isStudent, isTeacher, isParent, user]);
 
   const { dates, label } = getWeekDates(weekOffset);
   const teacherNames = getTeacherNames();
@@ -82,6 +107,7 @@ export default function SchedulePage() {
   const courseNames = getCourseNames();
 
   const openAdd = (day?: number, hour?: number) => {
+    if (!canTeach) return; // Students/parents can't add
     setForm({
       ...emptyForm,
       day: String(day ?? 0),
@@ -140,7 +166,10 @@ export default function SchedulePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Emploi du temps" description="Planification hebdomadaire des cours">
+      <PageHeader
+        title={isStudent ? "Mon emploi du temps" : isParent ? "Emploi du temps de votre enfant" : "Emploi du temps"}
+        description={isStudent || isParent ? "Consultation de vos cours" : "Planification hebdomadaire des cours"}
+      >
         <div className="flex items-center gap-1 rounded-lg border border-border p-1">
           {(["day", "week", "month"] as const).map((v) => (
             <button
@@ -155,9 +184,11 @@ export default function SchedulePage() {
             </button>
           ))}
         </div>
-        <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={() => openAdd()}>
-          Ajouter un cours
-        </Button>
+        {canTeach && (
+          <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={() => openAdd()}>
+            Ajouter un cours
+          </Button>
+        )}
       </PageHeader>
 
       {/* Navigation */}
@@ -237,15 +268,15 @@ export default function SchedulePage() {
                       </div>
                       {view === "day" ? (
                         <div
-                          className="relative cursor-pointer hover:bg-muted/30 transition-colors"
-                          onClick={() => openAdd(selectedDay, 8 + hourIdx)}
+                          className={cn("relative transition-colors", canTeach && "cursor-pointer hover:bg-muted/30")}
+                          onClick={() => canTeach && openAdd(selectedDay, 8 + hourIdx)}
                         />
                       ) : (
                         days.map((_, dayIdx) => (
                           <div
                             key={dayIdx}
-                            className="border-r border-border last:border-r-0 relative cursor-pointer hover:bg-muted/30 transition-colors"
-                            onClick={() => openAdd(dayIdx, 8 + hourIdx)}
+                            className={cn("border-r border-border last:border-r-0 relative transition-colors", canTeach && "cursor-pointer hover:bg-muted/30")}
+                            onClick={() => canTeach && openAdd(dayIdx, 8 + hourIdx)}
                           />
                         ))
                       )}
@@ -482,19 +513,21 @@ export default function SchedulePage() {
                   </div>
                 </div>
               </div>
-              <DialogFooter>
-                <Button
-                  variant="outline"
-                  className="text-error-600 hover:bg-error-50"
-                  leftIcon={<Trash2 className="h-4 w-4" />}
-                  onClick={() => handleDelete(showDetail.id)}
-                >
-                  Supprimer
-                </Button>
-                <Button leftIcon={<Edit className="h-4 w-4" />} onClick={() => openEdit(showDetail)}>
-                  Modifier
-                </Button>
-              </DialogFooter>
+              {canTeach && (
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    className="text-error-600 hover:bg-error-50"
+                    leftIcon={<Trash2 className="h-4 w-4" />}
+                    onClick={() => handleDelete(showDetail.id)}
+                  >
+                    Supprimer
+                  </Button>
+                  <Button leftIcon={<Edit className="h-4 w-4" />} onClick={() => openEdit(showDetail)}>
+                    Modifier
+                  </Button>
+                </DialogFooter>
+              )}
             </>
           )}
         </DialogContent>
