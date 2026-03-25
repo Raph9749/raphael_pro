@@ -1,0 +1,14 @@
+from app.schemas.user import *  # noqa
+from app.schemas.student import *  # noqa
+from app.schemas.teacher import *  # noqa
+from app.schemas.academic import *  # noqa
+from app.schemas.schedule import *  # noqa
+from app.schemas.attendance import *  # noqa
+from app.schemas.grade import *  # noqa
+from app.schemas.finance import *  # noqa
+from app.schemas.admission import *  # noqa
+from app.schemas.communication import *  # noqa
+from app.schemas.document import *  # noqa
+from app.schemas.internship import *  # noqa
+from app.schemas.event import *  # noqa
+from app.schemas.common import *  # noqa
