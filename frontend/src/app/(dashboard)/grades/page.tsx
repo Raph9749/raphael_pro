@@ -9,61 +9,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { useRole } from "@/hooks/use-role";
-
-interface StudentGrade {
-  name: string;
-  matricule: string;
-  cc1: number;
-  cc2: number;
-  tp: number;
-  exam: number;
-}
-
-const initialGrades: Record<string, StudentGrade[]> = {
-  "algo-l2a-s1": [
-    { name: "Marie Nguema", matricule: "STU-001", cc1: 15, cc2: 14, tp: 16, exam: 16 },
-    { name: "Paul Atangana", matricule: "STU-002", cc1: 12, cc2: 11, tp: 13, exam: 10 },
-    { name: "Aissatou Diallo", matricule: "STU-003", cc1: 17, cc2: 18, tp: 16, exam: 17 },
-    { name: "Emmanuel Nkoulou", matricule: "STU-004", cc1: 8, cc2: 9, tp: 11, exam: 7 },
-    { name: "Sandrine Essomba", matricule: "STU-005", cc1: 14, cc2: 13, tp: 15, exam: 14 },
-    { name: "Jean-Claude Fouda", matricule: "STU-006", cc1: 10, cc2: 12, tp: 11, exam: 9 },
-    { name: "Celine Mvondo", matricule: "STU-007", cc1: 16, cc2: 15, tp: 17, exam: 15 },
-    { name: "Andre Biya", matricule: "STU-008", cc1: 11, cc2: 10, tp: 12, exam: 11 },
-    { name: "Florence Onana", matricule: "STU-009", cc1: 13, cc2: 14, tp: 13, exam: 12 },
-    { name: "Patrick Mbarga", matricule: "STU-010", cc1: 18, cc2: 17, tp: 19, exam: 18 },
-    { name: "Rose Ekotto", matricule: "STU-011", cc1: 9, cc2: 8, tp: 10, exam: 8 },
-    { name: "Samuel Tamba", matricule: "STU-012", cc1: 14, cc2: 15, tp: 14, exam: 13 },
-  ],
-  "bdd-l2a-s1": [
-    { name: "Marie Nguema", matricule: "STU-001", cc1: 14, cc2: 16, tp: 15, exam: 13 },
-    { name: "Paul Atangana", matricule: "STU-002", cc1: 10, cc2: 9, tp: 11, exam: 12 },
-    { name: "Aissatou Diallo", matricule: "STU-003", cc1: 16, cc2: 17, tp: 18, exam: 15 },
-    { name: "Emmanuel Nkoulou", matricule: "STU-004", cc1: 7, cc2: 8, tp: 9, exam: 6 },
-    { name: "Sandrine Essomba", matricule: "STU-005", cc1: 13, cc2: 14, tp: 12, exam: 15 },
-    { name: "Jean-Claude Fouda", matricule: "STU-006", cc1: 11, cc2: 10, tp: 12, exam: 10 },
-  ],
-  "reseau-l2a-s1": [
-    { name: "Marie Nguema", matricule: "STU-001", cc1: 16, cc2: 15, tp: 17, exam: 14 },
-    { name: "Paul Atangana", matricule: "STU-002", cc1: 11, cc2: 12, tp: 10, exam: 11 },
-    { name: "Aissatou Diallo", matricule: "STU-003", cc1: 15, cc2: 16, tp: 17, exam: 16 },
-  ],
-};
-
-const GRADES_KEY = "isce_grades";
-
-function loadGrades(): Record<string, StudentGrade[]> {
-  if (typeof window === "undefined") return initialGrades;
-  const stored = localStorage.getItem(GRADES_KEY);
-  if (!stored) {
-    localStorage.setItem(GRADES_KEY, JSON.stringify(initialGrades));
-    return initialGrades;
-  }
-  return JSON.parse(stored);
-}
-
-function saveGrades(data: Record<string, StudentGrade[]>) {
-  localStorage.setItem(GRADES_KEY, JSON.stringify(data));
-}
+import {
+  getCourses, getGrades, saveGrades, exportGradesCSV, downloadCSV,
+  type StudentGrade, type Course,
+} from "@/lib/mock-data";
 
 function calcAvg(s: StudentGrade) {
   return s.cc1 * 0.2 + s.cc2 * 0.2 + s.tp * 0.2 + s.exam * 0.4;
@@ -82,22 +31,28 @@ function gradeBg(score: number) {
 }
 
 export default function GradesPage() {
-  const [subject, setSubject] = React.useState("algo");
-  const [classGroup, setClassGroup] = React.useState("l2a");
-  const [semester, setSemester] = React.useState("s1");
+  const [courses, setCourses] = React.useState<Course[]>([]);
+  const [selectedCourse, setSelectedCourse] = React.useState("");
   const [allGrades, setAllGrades] = React.useState<Record<string, StudentGrade[]>>({});
   const [saved, setSaved] = React.useState(false);
   const [editCell, setEditCell] = React.useState<{ idx: number; field: keyof StudentGrade } | null>(null);
   const [editValue, setEditValue] = React.useState("");
   const { canTeach, isStudent, isParent } = useRole();
 
-  React.useEffect(() => { setAllGrades(loadGrades()); }, []);
+  React.useEffect(() => {
+    const allCourses = getCourses();
+    setCourses(allCourses);
+    setAllGrades(getGrades());
+    if (allCourses.length > 0) {
+      setSelectedCourse(`${allCourses[0].id}-${allCourses[0].code}`);
+    }
+  }, []);
 
-  const key = `${subject}-${classGroup}-${semester}`;
-  const students = allGrades[key] || [];
+  const currentCourse = courses.find((c) => `${c.id}-${c.code}` === selectedCourse);
+  const students = allGrades[selectedCourse] || [];
 
   const startEdit = (idx: number, field: keyof StudentGrade, value: number) => {
-    if (!canTeach) return; // Students/parents can't edit grades
+    if (!canTeach) return;
     setEditCell({ idx, field });
     setEditValue(String(value));
   };
@@ -106,9 +61,9 @@ export default function GradesPage() {
     if (!editCell) return;
     const val = Math.min(20, Math.max(0, Number(editValue) || 0));
     const updated = { ...allGrades };
-    const list = [...(updated[key] || [])];
+    const list = [...(updated[selectedCourse] || [])];
     list[editCell.idx] = { ...list[editCell.idx], [editCell.field]: val };
-    updated[key] = list;
+    updated[selectedCourse] = list;
     setAllGrades(updated);
     setEditCell(null);
   };
@@ -124,6 +79,14 @@ export default function GradesPage() {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const handleExport = () => {
+    const courseName = currentCourse ? currentCourse.name : "notes";
+    downloadCSV(
+      exportGradesCSV(selectedCourse, courseName),
+      `notes-${courseName.replace(/\s+/g, "-").toLowerCase()}.csv`
+    );
+  };
+
   // Stats
   const avgs = students.map(calcAvg);
   const classAvg = avgs.length > 0 ? avgs.reduce((a, b) => a + b, 0) / avgs.length : 0;
@@ -135,9 +98,11 @@ export default function GradesPage() {
     <div className="space-y-6">
       <PageHeader
         title={isStudent ? "Mes notes" : isParent ? "Notes de votre enfant" : "Notes"}
-        description={canTeach ? "Saisie et gestion des notes par matiere et classe" : "Consultez les notes"}
+        description={canTeach ? "Saisie et gestion des notes par cours" : "Consultez les notes"}
       >
-        <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>Exporter</Button>
+        <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />} onClick={handleExport}>
+          Exporter CSV
+        </Button>
         {canTeach && (
           <Button
             size="sm"
@@ -150,41 +115,26 @@ export default function GradesPage() {
         )}
       </PageHeader>
 
-      {/* Selectors */}
+      {/* Course selector */}
       <div className="flex flex-wrap items-center gap-3">
-        <Select value={subject} onValueChange={setSubject}>
-          <SelectTrigger className="w-[220px]">
-            <SelectValue placeholder="Matiere" />
+        <Select value={selectedCourse} onValueChange={setSelectedCourse}>
+          <SelectTrigger className="w-[400px]">
+            <SelectValue placeholder="Choisir un cours" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="algo">Algorithmique Avancee</SelectItem>
-            <SelectItem value="bdd">Base de donnees</SelectItem>
-            <SelectItem value="reseau">Reseaux</SelectItem>
-            <SelectItem value="math">Mathematiques</SelectItem>
-            <SelectItem value="anglais">Anglais</SelectItem>
+            {courses.map((c) => (
+              <SelectItem key={`${c.id}-${c.code}`} value={`${c.id}-${c.code}`}>
+                {c.name} - {c.class} ({c.code})
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
-
-        <Select value={classGroup} onValueChange={setClassGroup}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Classe" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="l2a">L2 Info A</SelectItem>
-            <SelectItem value="l2b">L2 Info B</SelectItem>
-            <SelectItem value="l3">L3 Info</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Select value={semester} onValueChange={setSemester}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Semestre" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="s1">Semestre 1</SelectItem>
-            <SelectItem value="s2">Semestre 2</SelectItem>
-          </SelectContent>
-        </Select>
+        {currentCourse && (
+          <div className="text-sm text-muted-foreground">
+            Enseignant: <span className="font-medium text-foreground">{currentCourse.teacher}</span>
+            {" | "}Semestre {currentCourse.semester}
+          </div>
+        )}
       </div>
 
       {/* Summary stats */}
@@ -213,7 +163,7 @@ export default function GradesPage() {
           <div className="overflow-x-auto">
             {students.length === 0 ? (
               <div className="p-12 text-center">
-                <p className="text-muted-foreground">Aucune note pour cette selection</p>
+                <p className="text-muted-foreground">Aucune note pour ce cours. {canTeach && "Les notes seront generees quand des etudiants seront assignes a la classe."}</p>
               </div>
             ) : (
               <Table>

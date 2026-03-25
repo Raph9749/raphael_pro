@@ -18,6 +18,7 @@ import {
 import {
   getStudents, addStudent, updateStudent, deleteStudent,
   getClassNames, getProgramNames,
+  exportStudentsCSV, downloadCSV,
   type Student,
 } from "@/lib/mock-data";
 import { useRole } from "@/hooks/use-role";
@@ -140,8 +141,8 @@ export default function StudentsPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Etudiants" description={canManage ? "Gerez les etudiants inscrits dans votre etablissement" : "Consultez les etudiants de votre etablissement"}>
-        <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
-          Exporter
+        <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />} onClick={() => downloadCSV(exportStudentsCSV(), "etudiants-isce.csv")}>
+          Exporter CSV
         </Button>
         {canManage && (
           <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={openAdd}>

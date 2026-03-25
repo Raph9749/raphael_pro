@@ -22,6 +22,7 @@ import {
   getCoursesByTeacher, getCourses, addCourse, deleteCourse, updateCourse,
   getClassNames, getProgramNames, ROOMS,
   DEPARTMENTS, CONTRACT_TYPES,
+  exportTeachersCSV, downloadCSV,
   type Teacher, type Course,
 } from "@/lib/mock-data";
 import { useRole } from "@/hooks/use-role";
@@ -176,8 +177,8 @@ export default function TeachersPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Enseignants" description="Gerez le personnel enseignant de votre etablissement">
-        <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />}>
-          Exporter
+        <Button variant="outline" size="sm" leftIcon={<Download className="h-4 w-4" />} onClick={() => downloadCSV(exportTeachersCSV(), "enseignants-isce.csv")}>
+          Exporter CSV
         </Button>
         {canManage && (
           <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={openAdd}>

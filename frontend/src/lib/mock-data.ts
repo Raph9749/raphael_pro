@@ -435,3 +435,145 @@ export const DEPARTMENTS = ["Informatique", "Gestion", "Marketing", "Finance", "
 export const ROOMS = ["Salle 101", "Salle 102", "Salle 103", "Salle 201", "Salle 202", "Salle 203", "Salle 204", "Salle 301", "Salle 302", "Salle 401", "Amphi A", "Amphi B", "Amphi C", "Labo 1", "Labo 2", "Labo 3", "S.101", "S.204", "S.205", "S.302"];
 export const CONTRACT_TYPES = ["CDI", "CDD", "Vacataire"];
 export const DEGREES = ["BTS", "Licence", "Licence & Master", "Master"];
+
+// ============== GRADES ==============
+
+export interface StudentGrade {
+  name: string;
+  matricule: string;
+  cc1: number;
+  cc2: number;
+  tp: number;
+  exam: number;
+}
+
+const GRADES_KEY = "isce_grades";
+
+function buildDefaultGrades(): Record<string, StudentGrade[]> {
+  // Build grade entries from students in each class + course combination
+  const students = getStudents();
+  const courses = getCourses();
+  const grades: Record<string, StudentGrade[]> = {};
+
+  for (const course of courses) {
+    // Find students whose class matches (partial match for short names)
+    const classStudents = students.filter((s) =>
+      s.status === "active" && (
+        s.classe === course.class ||
+        s.classe.toLowerCase().includes(course.class.toLowerCase().replace(/\s+/g, " ")) ||
+        course.class.toLowerCase().includes(s.classe.toLowerCase().split(" ").slice(0, 2).join(" "))
+      )
+    );
+    if (classStudents.length === 0) continue;
+
+    const key = `${course.id}-${course.code}`;
+    grades[key] = classStudents.map((s) => ({
+      name: s.name,
+      matricule: s.matricule,
+      cc1: Math.round(Math.random() * 8 + 8),  // 8-16
+      cc2: Math.round(Math.random() * 8 + 8),
+      tp: Math.round(Math.random() * 8 + 9),   // 9-17
+      exam: Math.round(Math.random() * 10 + 6), // 6-16
+    }));
+  }
+  return grades;
+}
+
+export function getGrades(): Record<string, StudentGrade[]> {
+  if (typeof window === "undefined") return {};
+  const stored = localStorage.getItem(GRADES_KEY);
+  if (!stored) {
+    const defaults = buildDefaultGrades();
+    localStorage.setItem(GRADES_KEY, JSON.stringify(defaults));
+    return defaults;
+  }
+  return JSON.parse(stored);
+}
+
+export function saveGrades(data: Record<string, StudentGrade[]>): void {
+  localStorage.setItem(GRADES_KEY, JSON.stringify(data));
+}
+
+// ============== STATS HELPERS ==============
+
+export function getSchoolStats() {
+  const students = getStudents();
+  const teachers = getTeachers();
+  const classes = getClasses();
+  const courses = getCourses();
+  const programs = getPrograms();
+  const events = getEvents();
+
+  const activeStudents = students.filter((s) => s.status === "active").length;
+  const activeTeachers = teachers.filter((t) => t.status === "active").length;
+  const activeClasses = classes.filter((c) => c.status === "active").length;
+  const activePrograms = programs.filter((p) => p.status === "active").length;
+
+  // Students per program for pie chart
+  const studentsByProgram = programs
+    .filter((p) => p.status === "active")
+    .map((p) => {
+      const count = students.filter((s) => s.programme === p.name || s.programme === p.name.split(" ")[0]).length;
+      return { name: p.name, value: count };
+    })
+    .filter((p) => p.value > 0);
+
+  // Today's events (use day of week: 0=Mon)
+  const today = new Date();
+  const dayOfWeek = (today.getDay() + 6) % 7; // Convert Sun=0 to Mon=0
+  const todayEvents = events.filter((e) => e.day === dayOfWeek).sort((a, b) => a.startHour - b.startHour);
+
+  return {
+    totalStudents: students.length,
+    activeStudents,
+    totalTeachers: teachers.length,
+    activeTeachers,
+    totalClasses: activeClasses,
+    totalCourses: courses.length,
+    totalPrograms: activePrograms,
+    totalEvents: events.length,
+    studentsByProgram,
+    todayEvents,
+  };
+}
+
+// ============== CSV EXPORT ==============
+
+export function exportStudentsCSV(): string {
+  const students = getStudents();
+  const header = "Matricule,Nom,Email,Telephone,Programme,Classe,Date de naissance,Statut";
+  const rows = students.map((s) =>
+    `${s.matricule},"${s.name}",${s.email},${s.phone},${s.programme},"${s.classe}",${s.dateNaissance},${s.status}`
+  );
+  return [header, ...rows].join("\n");
+}
+
+export function exportTeachersCSV(): string {
+  const teachers = getTeachers();
+  const header = "ID,Nom,Email,Telephone,Departement,Specialisation,Contrat,Statut";
+  const rows = teachers.map((t) =>
+    `${t.employeeId},"${t.name}",${t.email},${t.phone},${t.department},"${t.specialization}",${t.contractType},${t.status}`
+  );
+  return [header, ...rows].join("\n");
+}
+
+export function exportGradesCSV(courseKey: string, courseName: string): string {
+  const grades = getGrades();
+  const students = grades[courseKey] || [];
+  const header = `Matricule,Nom,CC1,CC2,TP,Examen,Moyenne,Decision`;
+  const rows = students.map((s) => {
+    const avg = s.cc1 * 0.2 + s.cc2 * 0.2 + s.tp * 0.2 + s.exam * 0.4;
+    return `${s.matricule},"${s.name}",${s.cc1},${s.cc2},${s.tp},${s.exam},${avg.toFixed(1)},${avg >= 10 ? "Valide" : "Non valide"}`;
+  });
+  return [header, ...rows].join("\n");
+}
+
+export function downloadCSV(content: string, filename: string): void {
+  const blob = new Blob(["\uFEFF" + content], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
