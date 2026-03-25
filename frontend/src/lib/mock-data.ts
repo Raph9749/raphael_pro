@@ -51,12 +51,39 @@ export interface Course {
   semester: number;
 }
 
+export interface Student {
+  id: string;
+  name: string;
+  matricule: string;
+  email: string;
+  phone: string;
+  programme: string;
+  classe: string;
+  dateNaissance: string;
+  status: "active" | "inactive" | "graduated" | "suspended";
+}
+
+export interface Program {
+  id: string;
+  name: string;
+  code: string;
+  degree: string;
+  department: string;
+  duration: number;
+  capacity: number;
+  description: string;
+  levels: string[];
+  status: "active" | "inactive";
+}
+
 // ============== KEYS ==============
 
 const TEACHERS_KEY = "isce_teachers";
 const CLASSES_KEY = "isce_classes";
 const EVENTS_KEY = "isce_events";
 const COURSES_KEY = "isce_courses";
+const STUDENTS_KEY = "isce_students";
+const PROGRAMS_KEY = "isce_programs";
 
 // ============== DEFAULT DATA ==============
 
@@ -114,6 +141,33 @@ const defaultCourses: Course[] = [
   { id: "10", name: "Mathematiques", code: "MATH-201", program: "Mathematiques", teacher: "Dr. Francois Onana", hours: 2, class: "L2 Info", room: "Amphi A", semester: 1 },
   { id: "11", name: "Management", code: "GEST-201", program: "Gestion", teacher: "Dr. Angele Mbarga", hours: 3, class: "L2 Gestion", room: "Salle 203", semester: 1 },
   { id: "12", name: "Droit des Affaires", code: "DROIT-301", program: "Droit", teacher: "M. Patrick Essono", hours: 2, class: "L3 Gestion", room: "Salle 302", semester: 1 },
+];
+
+const defaultStudents: Student[] = [
+  { id: "1", name: "Marie Nguema", matricule: "STU-2024-001", email: "m.nguema@mail.fr", phone: "+33 6 10 00 01", programme: "Informatique", classe: "L2 Informatique A", dateNaissance: "2003-05-12", status: "active" },
+  { id: "2", name: "Paul Atangana", matricule: "STU-2024-002", email: "p.atangana@mail.fr", phone: "+33 6 10 00 02", programme: "Gestion", classe: "L1 Gestion B", dateNaissance: "2004-02-20", status: "active" },
+  { id: "3", name: "Aissatou Diallo", matricule: "STU-2024-003", email: "a.diallo@mail.fr", phone: "+33 6 10 00 03", programme: "Marketing", classe: "L2 Marketing", dateNaissance: "2003-09-15", status: "active" },
+  { id: "4", name: "Emmanuel Nkoulou", matricule: "STU-2024-004", email: "e.nkoulou@mail.fr", phone: "+33 6 10 00 04", programme: "Finance", classe: "M1 Finance", dateNaissance: "2001-11-08", status: "active" },
+  { id: "5", name: "Sandrine Essomba", matricule: "STU-2024-005", email: "s.essomba@mail.fr", phone: "+33 6 10 00 05", programme: "Informatique", classe: "L3 Informatique", dateNaissance: "2002-07-25", status: "suspended" },
+  { id: "6", name: "Jean-Claude Fouda", matricule: "STU-2024-006", email: "jc.fouda@mail.fr", phone: "+33 6 10 00 06", programme: "Droit", classe: "L1 Gestion A", dateNaissance: "2004-01-30", status: "active" },
+  { id: "7", name: "Celine Mvondo", matricule: "STU-2024-007", email: "c.mvondo@mail.fr", phone: "+33 6 10 00 07", programme: "Finance", classe: "M1 Finance", dateNaissance: "2001-06-18", status: "active" },
+  { id: "8", name: "Andre Biya", matricule: "STU-2024-008", email: "a.biya@mail.fr", phone: "+33 6 10 00 08", programme: "Gestion", classe: "L2 Gestion", dateNaissance: "2003-04-10", status: "inactive" },
+  { id: "9", name: "Florence Onana", matricule: "STU-2024-009", email: "f.onana@mail.fr", phone: "+33 6 10 00 09", programme: "Marketing", classe: "L1 Marketing", dateNaissance: "2004-08-22", status: "active" },
+  { id: "10", name: "Patrick Mbarga", matricule: "STU-2024-010", email: "p.mbarga@mail.fr", phone: "+33 6 10 00 10", programme: "Informatique", classe: "L1 Informatique B", dateNaissance: "2004-12-05", status: "active" },
+  { id: "11", name: "Rose Ekotto", matricule: "STU-2024-011", email: "r.ekotto@mail.fr", phone: "+33 6 10 00 11", programme: "Droit", classe: "L1 Gestion A", dateNaissance: "2002-03-14", status: "graduated" },
+  { id: "12", name: "Samuel Tamba Jr", matricule: "STU-2024-012", email: "s.tamba.jr@mail.fr", phone: "+33 6 10 00 12", programme: "Finance", classe: "M1 Finance", dateNaissance: "2000-10-28", status: "active" },
+  { id: "13", name: "Beatrice Ngo", matricule: "STU-2024-013", email: "b.ngo@mail.fr", phone: "+33 6 10 00 13", programme: "Informatique", classe: "L2 Informatique B", dateNaissance: "2003-01-17", status: "active" },
+  { id: "14", name: "Thierry Kamga", matricule: "STU-2024-014", email: "t.kamga@mail.fr", phone: "+33 6 10 00 14", programme: "Gestion", classe: "L3 Gestion", dateNaissance: "2002-06-09", status: "active" },
+  { id: "15", name: "Nadine Owono", matricule: "STU-2024-015", email: "n.owono@mail.fr", phone: "+33 6 10 00 15", programme: "Marketing", classe: "L2 Marketing", dateNaissance: "2003-11-03", status: "active" },
+];
+
+const defaultPrograms: Program[] = [
+  { id: "1", name: "Informatique", code: "INFO", degree: "Licence & Master", department: "Sciences et Technologies", duration: 5, capacity: 350, description: "Formation en developpement logiciel, reseaux, bases de donnees, intelligence artificielle et cybersecurite.", levels: ["L1", "L2", "L3", "M1", "M2"], status: "active" },
+  { id: "2", name: "Gestion des Entreprises", code: "GEST", degree: "Licence", department: "Sciences de Gestion", duration: 3, capacity: 300, description: "Formation en management, comptabilite, ressources humaines et strategie d'entreprise.", levels: ["L1", "L2", "L3"], status: "active" },
+  { id: "3", name: "Marketing et Communication", code: "MKT", degree: "Licence", department: "Commerce", duration: 3, capacity: 220, description: "Formation en marketing digital, communication d'entreprise, etudes de marche et publicite.", levels: ["L1", "L2", "L3"], status: "active" },
+  { id: "4", name: "Finance et Comptabilite", code: "FIN", degree: "Licence & Master", department: "Sciences de Gestion", duration: 5, capacity: 250, description: "Formation en finance d'entreprise, analyse financiere, audit et controle de gestion.", levels: ["L1", "L2", "L3", "M1", "M2"], status: "active" },
+  { id: "5", name: "Droit des Affaires", code: "DROIT", degree: "Licence", department: "Sciences Juridiques", duration: 3, capacity: 180, description: "Formation en droit commercial, droit du travail, droit fiscal et procedures juridiques.", levels: ["L1", "L2", "L3"], status: "active" },
+  { id: "6", name: "Tourisme et Hotellerie", code: "TOUR", degree: "BTS", department: "Services", duration: 2, capacity: 60, description: "Programme en preparation - ouverture prevue pour 2026-2027.", levels: [], status: "inactive" },
 ];
 
 // ============== CRUD HELPERS ==============
@@ -266,6 +320,81 @@ export function deleteCourse(id: string): boolean {
   return true;
 }
 
+// ============== STUDENTS ==============
+
+export function getStudents(): Student[] {
+  return load(STUDENTS_KEY, defaultStudents);
+}
+
+export function getStudent(id: string): Student | undefined {
+  return getStudents().find((s) => s.id === id);
+}
+
+export function addStudent(student: Omit<Student, "id" | "matricule">): Student {
+  const students = getStudents();
+  const num = students.length + 1;
+  const newStudent: Student = {
+    ...student,
+    id: String(Date.now()),
+    matricule: `STU-2024-${String(num).padStart(3, "0")}`,
+  };
+  students.push(newStudent);
+  save(STUDENTS_KEY, students);
+  return newStudent;
+}
+
+export function updateStudent(id: string, data: Partial<Student>): Student | null {
+  const students = getStudents();
+  const idx = students.findIndex((s) => s.id === id);
+  if (idx === -1) return null;
+  students[idx] = { ...students[idx], ...data };
+  save(STUDENTS_KEY, students);
+  return students[idx];
+}
+
+export function deleteStudent(id: string): boolean {
+  const students = getStudents();
+  const filtered = students.filter((s) => s.id !== id);
+  if (filtered.length === students.length) return false;
+  save(STUDENTS_KEY, filtered);
+  return true;
+}
+
+// ============== PROGRAMS ==============
+
+export function getPrograms(): Program[] {
+  return load(PROGRAMS_KEY, defaultPrograms);
+}
+
+export function getProgram(id: string): Program | undefined {
+  return getPrograms().find((p) => p.id === id);
+}
+
+export function addProgram(program: Omit<Program, "id">): Program {
+  const programs = getPrograms();
+  const newProgram: Program = { ...program, id: String(Date.now()) };
+  programs.push(newProgram);
+  save(PROGRAMS_KEY, programs);
+  return newProgram;
+}
+
+export function updateProgram(id: string, data: Partial<Program>): Program | null {
+  const programs = getPrograms();
+  const idx = programs.findIndex((p) => p.id === id);
+  if (idx === -1) return null;
+  programs[idx] = { ...programs[idx], ...data };
+  save(PROGRAMS_KEY, programs);
+  return programs[idx];
+}
+
+export function deleteProgram(id: string): boolean {
+  const programs = getPrograms();
+  const filtered = programs.filter((p) => p.id !== id);
+  if (filtered.length === programs.length) return false;
+  save(PROGRAMS_KEY, filtered);
+  return true;
+}
+
 // ============== HELPERS ==============
 
 export function getTeacherNames(): string[] {
@@ -284,7 +413,25 @@ export function getCourseNames(): string[] {
   return getCourses().map((c) => c.name);
 }
 
-export const PROGRAMS = ["Informatique", "Gestion", "Marketing", "Finance", "Droit", "Langues", "Mathematiques"];
-export const DEPARTMENTS = ["Informatique", "Gestion", "Marketing", "Finance", "Droit", "Langues", "Mathematiques", "Sciences et Technologies"];
+export function getProgramNames(): string[] {
+  return getPrograms()
+    .filter((p) => p.status === "active")
+    .map((p) => p.name);
+}
+
+export function getStudentsByClass(className: string): Student[] {
+  return getStudents().filter((s) => s.classe === className && s.status === "active");
+}
+
+export function getStudentsByProgram(programName: string): Student[] {
+  return getStudents().filter((s) => s.programme === programName);
+}
+
+export function getCoursesByTeacher(teacherName: string): Course[] {
+  return getCourses().filter((c) => c.teacher === teacherName);
+}
+
+export const DEPARTMENTS = ["Informatique", "Gestion", "Marketing", "Finance", "Droit", "Langues", "Mathematiques", "Sciences et Technologies", "Commerce", "Sciences de Gestion", "Sciences Juridiques", "Services"];
 export const ROOMS = ["Salle 101", "Salle 102", "Salle 103", "Salle 201", "Salle 202", "Salle 203", "Salle 204", "Salle 301", "Salle 302", "Salle 401", "Amphi A", "Amphi B", "Amphi C", "Labo 1", "Labo 2", "Labo 3", "S.101", "S.204", "S.205", "S.302"];
 export const CONTRACT_TYPES = ["CDI", "CDD", "Vacataire"];
+export const DEGREES = ["BTS", "Licence", "Licence & Master", "Master"];

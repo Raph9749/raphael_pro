@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Download, Eye, Edit, Trash2 } from "lucide-react";
+import { Plus, Download, Eye, Edit, Trash2, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { DataTable, type Column, type RowAction } from "@/components/common/data-table";
@@ -19,8 +19,10 @@ import {
 } from "@/components/ui/select";
 import {
   getTeachers, addTeacher, updateTeacher, deleteTeacher,
+  getCoursesByTeacher, getCourses, addCourse, deleteCourse, updateCourse,
+  getClassNames, getProgramNames, ROOMS,
   DEPARTMENTS, CONTRACT_TYPES,
-  type Teacher,
+  type Teacher, type Course,
 } from "@/lib/mock-data";
 import { useRole } from "@/hooks/use-role";
 
@@ -45,6 +47,10 @@ export default function TeachersPage() {
   const [editId, setEditId] = React.useState<string | null>(null);
   const [form, setForm] = React.useState(emptyForm);
   const [showDelete, setShowDelete] = React.useState<string | null>(null);
+  const [showCourses, setShowCourses] = React.useState<string | null>(null);
+  const [teacherCourses, setTeacherCourses] = React.useState<Course[]>([]);
+  const [courseForm, setCourseForm] = React.useState({ name: "", code: "", program: "", hours: "2", class: "", room: "", semester: "1" });
+  const [showAddCourse, setShowAddCourse] = React.useState(false);
   const { canManage } = useRole();
 
   React.useEffect(() => { setTeachers(getTeachers() as TeacherRow[]); }, []);
@@ -96,6 +102,39 @@ export default function TeachersPage() {
     setShowDelete(null);
   };
 
+  const openCourses = (t: TeacherRow) => {
+    setTeacherCourses(getCoursesByTeacher(t.name));
+    setShowCourses(t.id);
+    setShowAddCourse(false);
+  };
+
+  const handleAddCourse = () => {
+    const teacher = teachers.find((t) => t.id === showCourses);
+    if (!teacher || !courseForm.name || !courseForm.code || !courseForm.class) return;
+    addCourse({
+      name: courseForm.name,
+      code: courseForm.code,
+      program: courseForm.program,
+      teacher: teacher.name,
+      hours: Number(courseForm.hours),
+      class: courseForm.class,
+      room: courseForm.room,
+      semester: Number(courseForm.semester),
+    });
+    setTeacherCourses(getCoursesByTeacher(teacher.name));
+    setCourseForm({ name: "", code: "", program: "", hours: "2", class: "", room: "", semester: "1" });
+    setShowAddCourse(false);
+  };
+
+  const handleRemoveCourse = (courseId: string) => {
+    deleteCourse(courseId);
+    const teacher = teachers.find((t) => t.id === showCourses);
+    if (teacher) setTeacherCourses(getCoursesByTeacher(teacher.name));
+  };
+
+  const classNames = getClassNames();
+  const programNames = getProgramNames();
+
   const columns: Column<TeacherRow>[] = [
     {
       key: "name",
@@ -128,6 +167,7 @@ export default function TeachersPage() {
   const actions: RowAction<TeacherRow>[] = [
     { label: "Voir le profil", icon: <Eye className="h-4 w-4" />, onClick: (row) => router.push(`/teachers/${row.id}`) },
     ...(canManage ? [
+      { label: "Matieres", icon: <BookOpen className="h-4 w-4" />, onClick: (row: TeacherRow) => openCourses(row) },
       { label: "Modifier", icon: <Edit className="h-4 w-4" />, onClick: (row: TeacherRow) => openEdit(row) },
       { label: "Supprimer", icon: <Trash2 className="h-4 w-4" />, onClick: (row: TeacherRow) => setShowDelete(row.id), variant: "destructive" as const },
     ] : []),
@@ -254,6 +294,114 @@ export default function TeachersPage() {
               Supprimer
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Course Assignment Dialog */}
+      <Dialog open={!!showCourses} onOpenChange={() => setShowCourses(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              Matieres - {teachers.find((t) => t.id === showCourses)?.name}
+            </DialogTitle>
+            <DialogDescription>
+              Gerez les cours et matieres assignes a cet enseignant
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            {teacherCourses.length === 0 && !showAddCourse && (
+              <p className="text-sm text-muted-foreground text-center py-4">Aucun cours assigne</p>
+            )}
+            {teacherCourses.map((c) => (
+              <div key={c.id} className="flex items-center justify-between px-3 py-2 rounded-lg border">
+                <div>
+                  <p className="text-sm font-medium">{c.name}</p>
+                  <p className="text-xs text-muted-foreground">{c.code} - {c.class} - {c.hours}h/sem</p>
+                </div>
+                <Button variant="ghost" size="icon-sm" onClick={() => handleRemoveCourse(c.id)}>
+                  <Trash2 className="h-3.5 w-3.5 text-error-500" />
+                </Button>
+              </div>
+            ))}
+
+            {showAddCourse ? (
+              <div className="space-y-3 border rounded-lg p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    label="Nom du cours"
+                    placeholder="Ex: Algorithmique"
+                    value={courseForm.name}
+                    onChange={(e) => setCourseForm({ ...courseForm, name: e.target.value })}
+                    required
+                  />
+                  <Input
+                    label="Code"
+                    placeholder="Ex: INFO-301"
+                    value={courseForm.code}
+                    onChange={(e) => setCourseForm({ ...courseForm, code: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Programme</label>
+                    <Select value={courseForm.program} onValueChange={(v) => setCourseForm({ ...courseForm, program: v })}>
+                      <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
+                      <SelectContent>
+                        {programNames.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Classe</label>
+                    <Select value={courseForm.class} onValueChange={(v) => setCourseForm({ ...courseForm, class: v })}>
+                      <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
+                      <SelectContent>
+                        {classNames.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <Input
+                    label="Heures/sem"
+                    type="number"
+                    value={courseForm.hours}
+                    onChange={(e) => setCourseForm({ ...courseForm, hours: e.target.value })}
+                  />
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Salle</label>
+                    <Select value={courseForm.room} onValueChange={(v) => setCourseForm({ ...courseForm, room: v })}>
+                      <SelectTrigger><SelectValue placeholder="Salle" /></SelectTrigger>
+                      <SelectContent>
+                        {ROOMS.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-foreground mb-1 block">Semestre</label>
+                    <Select value={courseForm.semester} onValueChange={(v) => setCourseForm({ ...courseForm, semester: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">Semestre 1</SelectItem>
+                        <SelectItem value="2">Semestre 2</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button variant="outline" size="sm" onClick={() => setShowAddCourse(false)}>Annuler</Button>
+                  <Button size="sm" onClick={handleAddCourse} disabled={!courseForm.name || !courseForm.code || !courseForm.class}>
+                    Ajouter
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button variant="outline" size="sm" className="w-full" onClick={() => setShowAddCourse(true)} leftIcon={<Plus className="h-4 w-4" />}>
+                Assigner un nouveau cours
+              </Button>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
