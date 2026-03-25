@@ -28,48 +28,62 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import {
-  getEvents, getCourses, getGrades, getStudents,
-  downloadCSV, exportGradesCSV,
+  getEvents, getCourses, getGrades, getStudents, getClasses,
+  getStudentByLastName,
   type ScheduleEvent, type StudentGrade,
 } from "@/lib/mock-data";
-import { getStudentShortClass, getStudentClass } from "@/hooks/use-role";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function StudentSpacePage() {
+  const { user } = useAuthStore();
   const [todayEvents, setTodayEvents] = React.useState<ScheduleEvent[]>([]);
   const [gradeData, setGradeData] = React.useState<{ matiere: string; note: number }[]>([]);
   const [totalCourses, setTotalCourses] = React.useState(0);
   const [moyenne, setMoyenne] = React.useState(0);
+  const [studentInfo, setStudentInfo] = React.useState<{ name: string; classe: string; programme: string } | null>(null);
 
   React.useEffect(() => {
-    const shortClass = getStudentShortClass();
-    const fullClass = getStudentClass();
+    if (!user) return;
+
+    // Find the student record matching the logged-in user by last name
+    const me = getStudentByLastName(user.last_name);
+    const myName = me?.name || `${user.first_name} ${user.last_name}`;
+    const fullClass = me?.classe || "";
+    const programme = me?.programme || "";
+    setStudentInfo({ name: myName, classe: fullClass, programme });
+
+    // Build short class name for matching courses/events
+    // e.g. "L2 Informatique A" -> exact matches: "L2 Info A", "L2 Info" (general)
+    const parts = fullClass.split(" ");
+    const level = parts[0] || ""; // e.g. "L2"
+    const progShort = parts.length >= 2 ? parts[1].substring(0, 4) : ""; // e.g. "Info"
+    const section = parts[2] || ""; // e.g. "A"
+    const shortWithSection = `${level} ${progShort} ${section}`.trim().toLowerCase(); // "l2 info a"
+    const shortNoSection = `${level} ${progShort}`.trim().toLowerCase(); // "l2 info"
+    const fullLower = fullClass.toLowerCase(); // "l2 informatique a"
+
+    // Match: exact short name with section, OR exact general class (no section), OR full class name
+    const matchesMyClass = (className: string) => {
+      const cl = className.toLowerCase().trim();
+      return cl === shortWithSection || cl === shortNoSection || cl === fullLower;
+    };
 
     // Today's events for student's class
     const today = new Date();
     const dayOfWeek = (today.getDay() + 6) % 7;
     const allEvents = getEvents();
     const myEvents = allEvents.filter((e) =>
-      e.day === dayOfWeek && (
-        e.class === shortClass ||
-        e.class.includes("Info") && shortClass.includes("Info")
-      )
+      e.day === dayOfWeek && matchesMyClass(e.class)
     ).sort((a, b) => a.startHour - b.startHour);
     setTodayEvents(myEvents);
 
     // Courses for this class
     const allCourses = getCourses();
-    const myCourses = allCourses.filter((c) =>
-      c.class === shortClass ||
-      c.class.toLowerCase().includes("l2 info a") ||
-      shortClass.toLowerCase().includes(c.class.toLowerCase().split(" ").slice(0, 2).join(" "))
-    );
+    const myCourses = allCourses.filter((c) => matchesMyClass(c.class));
     setTotalCourses(myCourses.length);
 
     // Get grades for this student
     const allGrades = getGrades();
-    const students = getStudents();
-    const me = students.find((s) => s.classe === fullClass);
-    const myName = me?.name || "Marie Nguema";
 
     const notesBySubject: { matiere: string; note: number }[] = [];
     let totalAvg = 0;
@@ -88,7 +102,7 @@ export default function StudentSpacePage() {
     }
     setGradeData(notesBySubject);
     setMoyenne(count > 0 ? Math.round((totalAvg / count) * 10) / 10 : 0);
-  }, []);
+  }, [user]);
 
   const today = new Date().toLocaleDateString("fr-FR", {
     weekday: "long",
@@ -108,9 +122,16 @@ export default function StudentSpacePage() {
           <p className="text-sm text-muted-foreground mt-1 capitalize">{today}</p>
         </div>
         <div className="flex items-center gap-3">
-          <Badge variant="default" className="bg-emerald-100 text-emerald-700 border-emerald-200">
-            {getStudentClass()}
-          </Badge>
+          {studentInfo && (
+            <>
+              <Badge variant="default" className="bg-emerald-100 text-emerald-700 border-emerald-200">
+                {studentInfo.classe}
+              </Badge>
+              <Badge variant="outline" className="text-xs">
+                {studentInfo.programme}
+              </Badge>
+            </>
+          )}
         </div>
       </div>
 

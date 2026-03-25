@@ -1,23 +1,49 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Search, Star, Archive, Trash2, Reply, MoreHorizontal, Paperclip, Send } from "lucide-react";
+import { Plus, Search, Star, Archive, Trash2, Reply, Paperclip, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/layout/page-header";
 import { UserAvatar } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { useRole } from "@/hooks/use-role";
+import { useAuthStore } from "@/stores/auth-store";
 
-const messages = [
-  { id: "1", sender: "Dr. Pierre Kamga", subject: "Notes du CC2 - Algorithmique L2", preview: "Bonjour, je vous transmets les notes du deuxieme controle continu pour la classe L2 Info A. Veuillez verifier et valider...", date: "14:30", unread: true, starred: false, priority: "normal" as const },
-  { id: "2", sender: "Mme. Isabelle Ekotto", subject: "Demande de salle supplementaire", preview: "Cher collegue, suite a l'augmentation des effectifs en L3 Marketing, j'aurais besoin d'une salle supplementaire pour les TD...", date: "12:15", unread: true, starred: true, priority: "high" as const },
-  { id: "3", sender: "Direction Academique", subject: "Calendrier des examens S2 2025-2026", preview: "Veuillez trouver ci-joint le calendrier previsionnel des examens du second semestre. Merci de verifier les creneaux...", date: "Hier", unread: false, starred: true, priority: "urgent" as const },
-  { id: "4", sender: "Paul Atangana (Etudiant)", subject: "Justificatif d'absence", preview: "Monsieur, je me permets de vous ecrire pour justifier mon absence du 20 mars. J'ai ete hospitalise et je vous joins...", date: "Hier", unread: false, starred: false, priority: "normal" as const },
-  { id: "5", sender: "Service Comptabilite", subject: "Rapport mensuel - Mars 2026", preview: "Ci-joint le rapport financier mensuel de mars 2026. Les recettes sont en hausse de 5% par rapport au mois precedent...", date: "21/03", unread: false, starred: false, priority: "normal" as const },
-  { id: "6", sender: "Pr. Josephine Nkoulou", subject: "Proposition de projet de fin d'etudes", preview: "Bonjour, je souhaite proposer 3 sujets de projet de fin d'etudes pour les etudiants de L3 Informatique...", date: "20/03", unread: false, starred: false, priority: "normal" as const },
-  { id: "7", sender: "Association Etudiante", subject: "Organisation de la journee portes ouvertes", preview: "Nous organisons la journee portes ouvertes le 15 avril prochain et aimerions discuter de la logistique...", date: "19/03", unread: false, starred: false, priority: "low" as const },
-  { id: "8", sender: "Mme. Helen Johnson", subject: "Resultats TOEFL - Promotion 2026", preview: "Les resultats du TOEFL de la session de mars sont arrives. 85% des candidats ont obtenu un score superieur a 550...", date: "18/03", unread: false, starred: false, priority: "normal" as const },
+interface Message {
+  id: string;
+  sender: string;
+  subject: string;
+  preview: string;
+  date: string;
+  unread: boolean;
+  starred: boolean;
+  priority: "urgent" | "high" | "normal" | "low";
+}
+
+const adminMessages: Message[] = [
+  { id: "1", sender: "Dr. Pierre Kamga", subject: "Notes du CC2 - Algorithmique L2", preview: "Bonjour, je vous transmets les notes du deuxieme controle continu pour la classe L2 Info A. Veuillez verifier et valider...", date: "14:30", unread: true, starred: false, priority: "normal" },
+  { id: "2", sender: "Mme. Isabelle Ekotto", subject: "Demande de salle supplementaire", preview: "Cher collegue, suite a l'augmentation des effectifs en L3 Marketing, j'aurais besoin d'une salle supplementaire pour les TD...", date: "12:15", unread: true, starred: true, priority: "high" },
+  { id: "3", sender: "Direction Academique", subject: "Calendrier des examens S2 2025-2026", preview: "Veuillez trouver ci-joint le calendrier previsionnel des examens du second semestre. Merci de verifier les creneaux...", date: "Hier", unread: false, starred: true, priority: "urgent" },
+  { id: "4", sender: "Paul Atangana (Etudiant)", subject: "Justificatif d'absence", preview: "Monsieur, je me permets de vous ecrire pour justifier mon absence du 20 mars. J'ai ete hospitalise et je vous joins...", date: "Hier", unread: false, starred: false, priority: "normal" },
+  { id: "5", sender: "Service Comptabilite", subject: "Rapport mensuel - Mars 2026", preview: "Ci-joint le rapport financier mensuel de mars 2026. Les recettes sont en hausse de 5% par rapport au mois precedent...", date: "21/03", unread: false, starred: false, priority: "normal" },
+  { id: "6", sender: "Pr. Josephine Nkoulou", subject: "Proposition de projet de fin d'etudes", preview: "Bonjour, je souhaite proposer 3 sujets de projet de fin d'etudes pour les etudiants de L3 Informatique...", date: "20/03", unread: false, starred: false, priority: "normal" },
+];
+
+const studentMessages: Message[] = [
+  { id: "1", sender: "Administration ISCE", subject: "Convocation aux examens S1", preview: "Bonjour, vous etes convoque(e) aux examens du semestre 1 du 28 mars au 10 avril 2026. Veuillez consulter le planning...", date: "14:30", unread: true, starred: true, priority: "urgent" },
+  { id: "2", sender: "Dr. Kamga", subject: "Support de cours - Algorithmique Ch.6", preview: "Bonjour, veuillez trouver ci-joint le support du chapitre 6 sur les arbres binaires. A preparer pour le prochain cours...", date: "Hier", unread: true, starred: false, priority: "normal" },
+  { id: "3", sender: "Scolarite", subject: "Attestation de scolarite disponible", preview: "Votre attestation de scolarite pour l'annee 2025-2026 est disponible au service scolarite. Vous pouvez la retirer...", date: "22/03", unread: false, starred: false, priority: "normal" },
+  { id: "4", sender: "M. Tamba", subject: "TP Reseaux - Preparation", preview: "Pour le prochain TP, merci d'installer Wireshark sur vos machines et de preparer l'exercice 3 du polycopie...", date: "20/03", unread: false, starred: false, priority: "normal" },
+  { id: "5", sender: "Bureau des stages", subject: "Rappel convention de stage", preview: "Nous vous rappelons que votre convention de stage doit etre deposee au plus tard le 15 avril 2026...", date: "18/03", unread: false, starred: true, priority: "high" },
+];
+
+const teacherMessages: Message[] = [
+  { id: "1", sender: "Administration", subject: "Planning examens S2", preview: "Bonjour, veuillez trouver ci-joint le planning des examens du second semestre. Merci de confirmer vos disponibilites...", date: "14:30", unread: true, starred: true, priority: "urgent" },
+  { id: "2", sender: "Marie Nguema (Etudiante)", subject: "Question sur le TP", preview: "Bonjour Monsieur, j'ai une question concernant l'exercice 4 du TP sur les arbres. Pourriez-vous m'eclairer...", date: "12:15", unread: true, starred: false, priority: "normal" },
+  { id: "3", sender: "Scolarite", subject: "Rappel saisie des notes CC2", preview: "Les notes du CC2 doivent etre saisies avant le 30 mars. Merci de completer la saisie pour vos matieres...", date: "Hier", unread: false, starred: false, priority: "high" },
+  { id: "4", sender: "Direction", subject: "Conseil pedagogique du 2 avril", preview: "Vous etes invite au conseil pedagogique qui se tiendra le 2 avril a 14h en salle de reunion...", date: "20/03", unread: false, starred: false, priority: "normal" },
 ];
 
 const priorityBadge: Record<string, { label: string; variant: "default" | "warning" | "error" | "muted" }> = {
@@ -28,12 +54,19 @@ const priorityBadge: Record<string, { label: string; variant: "default" | "warni
 };
 
 export default function CommunicationPage() {
-  const [selectedId, setSelectedId] = React.useState<string>("2");
+  const { canManage, isStudent, isTeacher } = useRole();
+  const { user } = useAuthStore();
+
+  const messages = isStudent ? studentMessages : isTeacher ? teacherMessages : adminMessages;
+  const [selectedId, setSelectedId] = React.useState<string>(messages[0]?.id || "1");
   const selected = messages.find((m) => m.id === selectedId);
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Communication" description="Messagerie interne de l'etablissement">
+      <PageHeader
+        title={isStudent ? "Mes messages" : "Communication"}
+        description={isStudent ? "Messages et notifications de l'ecole" : "Messagerie interne de l'etablissement"}
+      >
         <Button size="sm" leftIcon={<Plus className="h-4 w-4" />}>Nouveau message</Button>
       </PageHeader>
 
@@ -110,11 +143,11 @@ export default function CommunicationPage() {
             </div>
             <div className="flex-1 p-6 overflow-y-auto">
               <div className="prose prose-sm max-w-none">
-                <p>Bonjour Monsieur Mbarga,</p>
+                <p>Bonjour{isStudent && user ? ` ${user.first_name}` : ""},</p>
                 <p>{selected.preview}</p>
                 <p>
-                  Merci de bien vouloir prendre en compte cette demande dans les meilleurs delais.
-                  N&apos;hesitez pas a me contacter si vous avez des questions.
+                  Merci de bien vouloir prendre en compte cette information.
+                  N&apos;hesitez pas a nous contacter si vous avez des questions.
                 </p>
                 <p>Cordialement,<br />{selected.sender}</p>
               </div>

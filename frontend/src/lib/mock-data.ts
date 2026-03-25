@@ -460,6 +460,41 @@ export function getCoursesByTeacher(teacherName: string): Course[] {
   return getCourses().filter((c) => c.teacher === teacherName);
 }
 
+export function getCoursesByTeacherLastName(lastName: string): Course[] {
+  const lowerLast = lastName.toLowerCase();
+  return getCourses().filter((c) => c.teacher.toLowerCase().includes(lowerLast));
+}
+
+export function getTeacherByLastName(lastName: string): Teacher | undefined {
+  const lowerLast = lastName.toLowerCase();
+  return getTeachers().find((t) => t.name.toLowerCase().includes(lowerLast));
+}
+
+export function getStudentByLastName(lastName: string): Student | undefined {
+  const lowerLast = lastName.toLowerCase();
+  return getStudents().find((s) => s.name.toLowerCase().includes(lowerLast));
+}
+
+export function getCoursesByClass(className: string): Course[] {
+  const lower = className.toLowerCase();
+  return getCourses().filter((c) =>
+    c.class.toLowerCase() === lower ||
+    c.class.toLowerCase().includes(lower) ||
+    lower.includes(c.class.toLowerCase())
+  );
+}
+
+export function getEventsByClass(className: string): ScheduleEvent[] {
+  const lower = className.toLowerCase();
+  // Match short class names like "L2 Info A" against event class
+  return getEvents().filter((e) => {
+    const eClass = e.class.toLowerCase();
+    return eClass === lower ||
+      eClass.includes(lower) ||
+      lower.includes(eClass);
+  });
+}
+
 export const DEPARTMENTS = ["Informatique", "Gestion", "Marketing", "Finance", "Droit", "Langues", "Mathematiques", "Sciences et Technologies", "Commerce", "Sciences de Gestion", "Sciences Juridiques", "Services"];
 export const ROOMS = ["Salle 101", "Salle 102", "Salle 103", "Salle 201", "Salle 202", "Salle 203", "Salle 204", "Salle 301", "Salle 302", "Salle 401", "Amphi A", "Amphi B", "Amphi C", "Labo 1", "Labo 2", "Labo 3", "S.101", "S.204", "S.205", "S.302"];
 export const CONTRACT_TYPES = ["CDI", "CDD", "Vacataire"];
