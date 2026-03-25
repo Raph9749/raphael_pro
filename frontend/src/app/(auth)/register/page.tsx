@@ -135,7 +135,7 @@ export default function RegisterPage() {
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
               <GraduationCap className="h-6 w-6" />
             </div>
-            <span className="text-2xl font-bold tracking-tight">ScholarPro</span>
+            <span className="text-2xl font-bold tracking-tight">ISCE Alternance</span>
           </div>
         </div>
 
@@ -143,7 +143,7 @@ export default function RegisterPage() {
           <h1 className="text-3xl font-bold leading-tight tracking-tight">
             Rejoignez la communaute
             <br />
-            <span className="text-white/80">ScholarPro</span>
+            <span className="text-white/80">ISCE Alternance</span>
           </h1>
           <p className="text-lg text-white/70 max-w-md leading-relaxed">
             Creez votre compte en quelques etapes simples et accedez a votre espace personnalise.
@@ -188,7 +188,7 @@ export default function RegisterPage() {
               <GraduationCap className="h-5 w-5" />
             </div>
             <span className="text-xl font-bold text-foreground">
-              Scholar<span className="text-primary-600">Pro</span>
+              ISCE <span className="text-primary-600">Alternance</span>
             </span>
           </div>
 
@@ -298,7 +298,7 @@ export default function RegisterPage() {
                 <Input
                   label="Adresse email"
                   type="email"
-                  placeholder="nom@etablissement.cm"
+                  placeholder="nom@isce-alternance.fr"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   leftIcon={<Mail className="h-4 w-4" />}
@@ -308,7 +308,7 @@ export default function RegisterPage() {
                 <Input
                   label="Telephone"
                   type="tel"
-                  placeholder="+237 6XX XXX XXX"
+                  placeholder="+33 1 XX XX XX XX"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   leftIcon={<Phone className="h-4 w-4" />}
@@ -404,7 +404,7 @@ export default function RegisterPage() {
           )}
 
           <p className="mt-8 text-center text-xs text-muted-foreground">
-            ScholarPro &copy; 2026. Tous droits reserves.
+            ISCE Alternance &copy; 2026. Tous droits reserves.
           </p>
         </div>
       </div>

@@ -3,24 +3,24 @@ version: '3.8'
 services:
   db:
     image: postgres:16-alpine
-    container_name: scholarpro-db
+    container_name: isce-db
     environment:
-      POSTGRES_USER: scholarpro
-      POSTGRES_PASSWORD: scholarpro_secret
-      POSTGRES_DB: scholarpro
+      POSTGRES_USER: isce
+      POSTGRES_PASSWORD: isce_secret
+      POSTGRES_DB: isce
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U scholarpro"]
+      test: ["CMD-SHELL", "pg_isready -U isce"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: scholarpro-redis
+    container_name: isce-redis
     ports:
       - "6379:6379"
     volumes:
@@ -30,9 +30,9 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: scholarpro-backend
+    container_name: isce-backend
     environment:
-      DATABASE_URL: postgresql://scholarpro:scholarpro_secret@db:5432/scholarpro
+      DATABASE_URL: postgresql://isce:isce_secret@db:5432/isce
       REDIS_URL: redis://redis:6379/0
       SECRET_KEY: your-super-secret-key-change-in-production
       CORS_ORIGINS: '["http://localhost:3000"]'
@@ -52,7 +52,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: scholarpro-frontend
+    container_name: isce-frontend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
     ports:

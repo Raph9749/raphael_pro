@@ -12,11 +12,11 @@ import { useAuthStore } from "@/stores/auth-store";
 import type { User } from "@/types";
 
 const demoAccounts: { email: string; password: string; role: User["role"]; name: string; icon: React.ElementType; color: string }[] = [
-  { email: "admin@scholarpro.cm", password: "admin2026", role: "admin", name: "Jean-Pierre M.", icon: Shield, color: "bg-primary-100 text-primary-600 border-primary-200" },
-  { email: "prof.kamga@scholarpro.cm", password: "prof2026", role: "teacher", name: "Dr. Kamga", icon: Users, color: "bg-secondary-100 text-secondary-600 border-secondary-200" },
-  { email: "marie.nguema@scholarpro.cm", password: "etudiant2026", role: "student", name: "Marie N.", icon: BookOpen, color: "bg-emerald-100 text-emerald-600 border-emerald-200" },
-  { email: "parent.atangana@scholarpro.cm", password: "parent2026", role: "parent", name: "Paul A.", icon: UserCheck, color: "bg-amber-100 text-amber-600 border-amber-200" },
-  { email: "secretariat@scholarpro.cm", password: "staff2026", role: "staff", name: "Carine E.", icon: Briefcase, color: "bg-purple-100 text-purple-600 border-purple-200" },
+  { email: "admin@isce-alternance.fr", password: "admin2026", role: "admin", name: "Jean-Pierre M.", icon: Shield, color: "bg-primary-100 text-primary-600 border-primary-200" },
+  { email: "prof.kamga@isce-alternance.fr", password: "prof2026", role: "teacher", name: "Dr. Kamga", icon: Users, color: "bg-secondary-100 text-secondary-600 border-secondary-200" },
+  { email: "marie.nguema@isce-alternance.fr", password: "etudiant2026", role: "student", name: "Marie N.", icon: BookOpen, color: "bg-emerald-100 text-emerald-600 border-emerald-200" },
+  { email: "parent.atangana@isce-alternance.fr", password: "parent2026", role: "parent", name: "Paul A.", icon: UserCheck, color: "bg-amber-100 text-amber-600 border-amber-200" },
+  { email: "secretariat@isce-alternance.fr", password: "staff2026", role: "staff", name: "Carine E.", icon: Briefcase, color: "bg-purple-100 text-purple-600 border-purple-200" },
 ];
 
 export default function LoginPage() {
@@ -76,7 +76,7 @@ export default function LoginPage() {
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
               <GraduationCap className="h-6 w-6" />
             </div>
-            <span className="text-2xl font-bold tracking-tight">ScholarPro</span>
+            <span className="text-2xl font-bold tracking-tight">ISCE Alternance</span>
           </div>
         </div>
 
@@ -108,7 +108,7 @@ export default function LoginPage() {
 
         <div className="relative z-10">
           <p className="text-sm text-white/50">
-            Utilise par les meilleurs etablissements d&apos;Afrique Centrale
+            Ecole superieure en alternance basee en France
           </p>
         </div>
       </div>
@@ -122,7 +122,7 @@ export default function LoginPage() {
               <GraduationCap className="h-5 w-5" />
             </div>
             <span className="text-xl font-bold text-foreground">
-              Scholar<span className="text-primary-600">Pro</span>
+              ISCE <span className="text-primary-600">Alternance</span>
             </span>
           </div>
 
@@ -148,7 +148,7 @@ export default function LoginPage() {
             <Input
               label="Adresse email"
               type="email"
-              placeholder="nom@etablissement.cm"
+              placeholder="nom@isce-alternance.fr"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               leftIcon={<Mail className="h-4 w-4" />}
@@ -225,7 +225,7 @@ export default function LoginPage() {
           </p>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            ScholarPro &copy; 2026. Tous droits reserves.
+            ISCE Alternance &copy; 2026. Tous droits reserves.
           </p>
         </div>
       </div>

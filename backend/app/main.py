@@ -4,8 +4,8 @@ from app.core.config import settings
 from app.api.v1 import api_router
 
 app = FastAPI(
-    title="ScholarPro - School Management System",
-    description="Complete school management ERP API",
+    title="ISCE Alternance - Gestion Scolaire",
+    description="API de gestion scolaire ISCE Alternance",
     version="1.0.0",
     docs_url="/api/docs",
     redoc_url="/api/redoc",

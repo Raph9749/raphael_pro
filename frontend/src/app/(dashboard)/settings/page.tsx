@@ -17,11 +17,11 @@ import { StatusBadge } from "@/components/common/status-badge";
 import { Separator } from "@/components/ui/separator";
 
 const users = [
-  { name: "Jean-Pierre Mbarga", email: "jp.mbarga@scholarpro.cm", role: "Administrateur", status: "active" as const, lastLogin: "24/03/2026" },
-  { name: "Dr. Pierre Kamga", email: "p.kamga@scholarpro.cm", role: "Enseignant", status: "active" as const, lastLogin: "24/03/2026" },
-  { name: "Mme. Isabelle Ekotto", email: "i.ekotto@scholarpro.cm", role: "Enseignant", status: "active" as const, lastLogin: "23/03/2026" },
-  { name: "Sylvie Ngono", email: "s.ngono@scholarpro.cm", role: "Comptable", status: "active" as const, lastLogin: "24/03/2026" },
-  { name: "Marc Ateba", email: "m.ateba@scholarpro.cm", role: "Secretaire", status: "inactive" as const, lastLogin: "15/03/2026" },
+  { name: "Jean-Pierre Mbarga", email: "jp.mbarga@isce-alternance.fr", role: "Administrateur", status: "active" as const, lastLogin: "24/03/2026" },
+  { name: "Dr. Pierre Kamga", email: "p.kamga@isce-alternance.fr", role: "Enseignant", status: "active" as const, lastLogin: "24/03/2026" },
+  { name: "Mme. Isabelle Ekotto", email: "i.ekotto@isce-alternance.fr", role: "Enseignant", status: "active" as const, lastLogin: "23/03/2026" },
+  { name: "Sylvie Ngono", email: "s.ngono@isce-alternance.fr", role: "Comptable", status: "active" as const, lastLogin: "24/03/2026" },
+  { name: "Marc Ateba", email: "m.ateba@isce-alternance.fr", role: "Secretaire", status: "inactive" as const, lastLogin: "15/03/2026" },
 ];
 
 const roles = [
@@ -53,14 +53,14 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input label="Nom de l'etablissement" defaultValue="ScholarPro Institut" />
-                <Input label="Code etablissement" defaultValue="SPI-YDE-001" />
-                <Input label="Email" defaultValue="contact@scholarpro.cm" />
-                <Input label="Telephone" defaultValue="+237 222 00 00 00" />
-                <Input label="Adresse" defaultValue="Boulevard de la Reunion, Yaounde" />
-                <Input label="Ville" defaultValue="Yaounde, Cameroun" />
+                <Input label="Nom de l'etablissement" defaultValue="ISCE Alternance" />
+                <Input label="Code etablissement" defaultValue="ISCE-PAR-001" />
+                <Input label="Email" defaultValue="contact@isce-alternance.fr" />
+                <Input label="Telephone" defaultValue="+33 1 42 00 00 00" />
+                <Input label="Adresse" defaultValue="12 Rue de la Formation, 75010 Paris" />
+                <Input label="Ville" defaultValue="Paris, France" />
               </div>
-              <Textarea label="Description" defaultValue="Institut d'enseignement superieur prive specialise dans les formations en informatique, gestion, marketing et finance." />
+              <Textarea label="Description" defaultValue="Ecole superieure en alternance specialisee dans les formations en informatique, gestion, marketing et finance." />
               <div className="flex justify-end">
                 <Button leftIcon={<Save className="h-4 w-4" />}>Enregistrer</Button>
               </div>
@@ -88,14 +88,14 @@ export default function SettingsPage() {
                     <SelectItem value="en">English</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select defaultValue="xaf">
+                <Select defaultValue="eur">
                   <SelectTrigger>
                     <SelectValue placeholder="Devise" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="xaf">FCFA (XAF)</SelectItem>
                     <SelectItem value="eur">Euro (EUR)</SelectItem>
                     <SelectItem value="usd">Dollar (USD)</SelectItem>
+                    <SelectItem value="gbp">Livre Sterling (GBP)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

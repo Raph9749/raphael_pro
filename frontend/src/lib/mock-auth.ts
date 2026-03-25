@@ -1,7 +1,7 @@
 import type { User } from "@/types";
 
-const USERS_STORAGE_KEY = "scholarpro_users";
-const CURRENT_USER_KEY = "scholarpro_current_user";
+const USERS_STORAGE_KEY = "isce_users";
+const CURRENT_USER_KEY = "isce_current_user";
 
 export interface DemoAccount {
   email: string;
@@ -11,75 +11,75 @@ export interface DemoAccount {
 
 const defaultAccounts: DemoAccount[] = [
   {
-    email: "admin@scholarpro.cm",
+    email: "admin@isce-alternance.fr",
     password: "admin2026",
     user: {
       id: "usr_001",
-      email: "admin@scholarpro.cm",
+      email: "admin@isce-alternance.fr",
       first_name: "Jean-Pierre",
       last_name: "Mbarga",
       role: "admin",
-      phone: "+237 699 000 001",
+      phone: "+33 1 42 00 001",
       is_active: true,
       created_at: "2025-09-01T00:00:00Z",
       updated_at: "2026-03-01T00:00:00Z",
     },
   },
   {
-    email: "prof.kamga@scholarpro.cm",
+    email: "prof.kamga@isce-alternance.fr",
     password: "prof2026",
     user: {
       id: "usr_002",
-      email: "prof.kamga@scholarpro.cm",
+      email: "prof.kamga@isce-alternance.fr",
       first_name: "Albert",
       last_name: "Kamga",
       role: "teacher",
-      phone: "+237 699 000 002",
+      phone: "+33 1 42 00 002",
       is_active: true,
       created_at: "2025-09-01T00:00:00Z",
       updated_at: "2026-03-01T00:00:00Z",
     },
   },
   {
-    email: "marie.nguema@scholarpro.cm",
+    email: "marie.nguema@isce-alternance.fr",
     password: "etudiant2026",
     user: {
       id: "usr_003",
-      email: "marie.nguema@scholarpro.cm",
+      email: "marie.nguema@isce-alternance.fr",
       first_name: "Marie",
       last_name: "Nguema",
       role: "student",
-      phone: "+237 699 000 003",
+      phone: "+33 1 42 00 003",
       is_active: true,
       created_at: "2025-09-15T00:00:00Z",
       updated_at: "2026-03-01T00:00:00Z",
     },
   },
   {
-    email: "parent.atangana@scholarpro.cm",
+    email: "parent.atangana@isce-alternance.fr",
     password: "parent2026",
     user: {
       id: "usr_004",
-      email: "parent.atangana@scholarpro.cm",
+      email: "parent.atangana@isce-alternance.fr",
       first_name: "Paul",
       last_name: "Atangana",
       role: "parent",
-      phone: "+237 699 000 004",
+      phone: "+33 1 42 00 004",
       is_active: true,
       created_at: "2025-10-01T00:00:00Z",
       updated_at: "2026-03-01T00:00:00Z",
     },
   },
   {
-    email: "secretariat@scholarpro.cm",
+    email: "secretariat@isce-alternance.fr",
     password: "staff2026",
     user: {
       id: "usr_005",
-      email: "secretariat@scholarpro.cm",
+      email: "secretariat@isce-alternance.fr",
       first_name: "Carine",
       last_name: "Ekotto",
       role: "staff",
-      phone: "+237 699 000 005",
+      phone: "+33 1 42 00 005",
       is_active: true,
       created_at: "2025-09-01T00:00:00Z",
       updated_at: "2026-03-01T00:00:00Z",

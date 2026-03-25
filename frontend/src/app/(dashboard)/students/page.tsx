@@ -28,21 +28,21 @@ interface StudentRow {
 }
 
 const students: StudentRow[] = [
-  { id: "1", name: "Marie Nguema", matricule: "STU-2024-001", email: "m.nguema@mail.cm", programme: "Informatique", classe: "L2 Info A", status: "active" },
-  { id: "2", name: "Paul Atangana", matricule: "STU-2024-002", email: "p.atangana@mail.cm", programme: "Gestion", classe: "L1 Gest B", status: "active" },
-  { id: "3", name: "Aissatou Diallo", matricule: "STU-2024-003", email: "a.diallo@mail.cm", programme: "Marketing", classe: "L3 Mkt", status: "active" },
-  { id: "4", name: "Emmanuel Nkoulou", matricule: "STU-2024-004", email: "e.nkoulou@mail.cm", programme: "Finance", classe: "M1 Fin", status: "active" },
-  { id: "5", name: "Sandrine Essomba", matricule: "STU-2024-005", email: "s.essomba@mail.cm", programme: "Informatique", classe: "L3 Info A", status: "suspended" },
-  { id: "6", name: "Jean-Claude Fouda", matricule: "STU-2024-006", email: "jc.fouda@mail.cm", programme: "Droit", classe: "L1 Droit A", status: "active" },
-  { id: "7", name: "Celine Mvondo", matricule: "STU-2024-007", email: "c.mvondo@mail.cm", programme: "Finance", classe: "L2 Fin", status: "active" },
-  { id: "8", name: "Andre Biya", matricule: "STU-2024-008", email: "a.biya@mail.cm", programme: "Gestion", classe: "L2 Gest A", status: "inactive" },
-  { id: "9", name: "Florence Onana", matricule: "STU-2024-009", email: "f.onana@mail.cm", programme: "Marketing", classe: "L1 Mkt", status: "active" },
-  { id: "10", name: "Patrick Mbarga", matricule: "STU-2024-010", email: "p.mbarga@mail.cm", programme: "Informatique", classe: "L1 Info B", status: "active" },
-  { id: "11", name: "Rose Ekotto", matricule: "STU-2024-011", email: "r.ekotto@mail.cm", programme: "Droit", classe: "L2 Droit", status: "graduated" },
-  { id: "12", name: "Samuel Tamba", matricule: "STU-2024-012", email: "s.tamba@mail.cm", programme: "Finance", classe: "M2 Fin", status: "active" },
-  { id: "13", name: "Beatrice Ngo", matricule: "STU-2024-013", email: "b.ngo@mail.cm", programme: "Informatique", classe: "L2 Info B", status: "active" },
-  { id: "14", name: "Thierry Kamga", matricule: "STU-2024-014", email: "t.kamga@mail.cm", programme: "Gestion", classe: "L3 Gest", status: "active" },
-  { id: "15", name: "Nadine Owono", matricule: "STU-2024-015", email: "n.owono@mail.cm", programme: "Marketing", classe: "L2 Mkt", status: "active" },
+  { id: "1", name: "Marie Nguema", matricule: "STU-2024-001", email: "m.nguema@mail.fr", programme: "Informatique", classe: "L2 Info A", status: "active" },
+  { id: "2", name: "Paul Atangana", matricule: "STU-2024-002", email: "p.atangana@mail.fr", programme: "Gestion", classe: "L1 Gest B", status: "active" },
+  { id: "3", name: "Aissatou Diallo", matricule: "STU-2024-003", email: "a.diallo@mail.fr", programme: "Marketing", classe: "L3 Mkt", status: "active" },
+  { id: "4", name: "Emmanuel Nkoulou", matricule: "STU-2024-004", email: "e.nkoulou@mail.fr", programme: "Finance", classe: "M1 Fin", status: "active" },
+  { id: "5", name: "Sandrine Essomba", matricule: "STU-2024-005", email: "s.essomba@mail.fr", programme: "Informatique", classe: "L3 Info A", status: "suspended" },
+  { id: "6", name: "Jean-Claude Fouda", matricule: "STU-2024-006", email: "jc.fouda@mail.fr", programme: "Droit", classe: "L1 Droit A", status: "active" },
+  { id: "7", name: "Celine Mvondo", matricule: "STU-2024-007", email: "c.mvondo@mail.fr", programme: "Finance", classe: "L2 Fin", status: "active" },
+  { id: "8", name: "Andre Biya", matricule: "STU-2024-008", email: "a.biya@mail.fr", programme: "Gestion", classe: "L2 Gest A", status: "inactive" },
+  { id: "9", name: "Florence Onana", matricule: "STU-2024-009", email: "f.onana@mail.fr", programme: "Marketing", classe: "L1 Mkt", status: "active" },
+  { id: "10", name: "Patrick Mbarga", matricule: "STU-2024-010", email: "p.mbarga@mail.fr", programme: "Informatique", classe: "L1 Info B", status: "active" },
+  { id: "11", name: "Rose Ekotto", matricule: "STU-2024-011", email: "r.ekotto@mail.fr", programme: "Droit", classe: "L2 Droit", status: "graduated" },
+  { id: "12", name: "Samuel Tamba", matricule: "STU-2024-012", email: "s.tamba@mail.fr", programme: "Finance", classe: "M2 Fin", status: "active" },
+  { id: "13", name: "Beatrice Ngo", matricule: "STU-2024-013", email: "b.ngo@mail.fr", programme: "Informatique", classe: "L2 Info B", status: "active" },
+  { id: "14", name: "Thierry Kamga", matricule: "STU-2024-014", email: "t.kamga@mail.fr", programme: "Gestion", classe: "L3 Gest", status: "active" },
+  { id: "15", name: "Nadine Owono", matricule: "STU-2024-015", email: "n.owono@mail.fr", programme: "Marketing", classe: "L2 Mkt", status: "active" },
 ];
 
 const columns: Column<StudentRow>[] = [
