@@ -17,9 +17,10 @@ import {
 import {
   getEvents, addEvent, deleteEvent, updateEvent,
   getTeacherNames, getClassNames, getCourseNames, ROOMS,
+  getStudentByLastName, getClasses,
   type ScheduleEvent,
 } from "@/lib/mock-data";
-import { useRole, getStudentShortClass } from "@/hooks/use-role";
+import { useRole } from "@/hooks/use-role";
 
 const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
 const hours = Array.from({ length: 11 }, (_, i) => `${i + 8}:00`);
@@ -80,11 +81,24 @@ export default function SchedulePage() {
   React.useEffect(() => {
     let allEvents = getEvents();
     // Students only see events for their class
-    if (isStudent) {
-      const studentClass = getStudentShortClass(user?.id);
-      allEvents = allEvents.filter((e) =>
-        e.class === studentClass || e.class.includes("Info") && studentClass.includes("Info")
-      );
+    if (isStudent && user) {
+      const me = getStudentByLastName(user.last_name);
+      if (me) {
+        const fullClass = me.classe;
+        const parts = fullClass.split(" ");
+        const shortNames: string[] = [fullClass.toLowerCase()];
+        if (parts.length >= 2) {
+          const level = parts[0];
+          const progShort = parts[1].substring(0, 4);
+          const section = parts[2] || "";
+          shortNames.push(`${level} ${progShort} ${section}`.trim().toLowerCase());
+          shortNames.push(`${level} ${progShort}`.toLowerCase());
+        }
+        allEvents = allEvents.filter((e) => {
+          const eLower = e.class.toLowerCase();
+          return shortNames.some((sn) => eLower === sn || eLower.includes(sn) || sn.includes(eLower));
+        });
+      }
     }
     // Teachers only see their own events
     if (isTeacher && user) {
@@ -93,11 +107,26 @@ export default function SchedulePage() {
         e.teacher.includes(lastName) || e.teacher === `${user.first_name} ${user.last_name}`
       );
     }
-    // Parents see their child's class events
-    if (isParent) {
-      allEvents = allEvents.filter((e) =>
-        e.class.includes("Info") // child is in L2 Info A
-      );
+    // Parents see their child's class events (based on linked student)
+    if (isParent && user) {
+      // For demo, parent Atangana's child is Paul Atangana
+      const child = getStudentByLastName(user.last_name);
+      if (child) {
+        const fullClass = child.classe;
+        const parts = fullClass.split(" ");
+        const shortNames: string[] = [fullClass.toLowerCase()];
+        if (parts.length >= 2) {
+          const level = parts[0];
+          const progShort = parts[1].substring(0, 4);
+          const section = parts[2] || "";
+          shortNames.push(`${level} ${progShort} ${section}`.trim().toLowerCase());
+          shortNames.push(`${level} ${progShort}`.toLowerCase());
+        }
+        allEvents = allEvents.filter((e) => {
+          const eLower = e.class.toLowerCase();
+          return shortNames.some((sn) => eLower === sn || eLower.includes(sn) || sn.includes(eLower));
+        });
+      }
     }
     setEvents(allEvents);
   }, [isStudent, isTeacher, isParent, user]);
