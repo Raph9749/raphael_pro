@@ -8,7 +8,11 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { StatsCard } from "@/components/common/stats-card";
 import { UserAvatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useRole } from "@/hooks/use-role";
+import { useAuthStore } from "@/stores/auth-store";
+import { getStudentByLastName } from "@/lib/mock-data";
 
 type AttendanceStatus = "present" | "absent" | "late" | null;
 
@@ -43,15 +47,88 @@ const statusOptions: { value: AttendanceStatus; label: string; color: string; ac
   { value: "late", label: "Retard", color: "border-border text-muted-foreground hover:border-warning-300", activeColor: "border-warning-500 bg-warning-50 text-warning-700" },
 ];
 
+const statusLabels: Record<string, { label: string; color: string }> = {
+  present: { label: "Present(e)", color: "bg-success-100 text-success-700" },
+  absent: { label: "Absent(e)", color: "bg-error-100 text-error-700" },
+  late: { label: "En retard", color: "bg-warning-100 text-warning-700" },
+};
+
+// Student's personal attendance history
+const studentAttendanceHistory = [
+  { date: "24/03/2026", matiere: "Algorithmique", horaire: "08:00-10:00", status: "present" },
+  { date: "24/03/2026", matiere: "Reseaux", horaire: "10:00-12:00", status: "present" },
+  { date: "22/03/2026", matiere: "Anglais", horaire: "14:00-16:00", status: "present" },
+  { date: "21/03/2026", matiere: "Algorithmique", horaire: "08:00-10:00", status: "late" },
+  { date: "20/03/2026", matiere: "Base de donnees", horaire: "10:00-12:00", status: "present" },
+  { date: "19/03/2026", matiere: "Reseaux", horaire: "10:00-12:00", status: "absent" },
+  { date: "18/03/2026", matiere: "Mathematiques", horaire: "14:00-16:00", status: "present" },
+  { date: "17/03/2026", matiere: "Algorithmique", horaire: "08:00-10:00", status: "present" },
+  { date: "15/03/2026", matiere: "Anglais", horaire: "14:00-16:00", status: "present" },
+  { date: "14/03/2026", matiere: "Base de donnees", horaire: "10:00-12:00", status: "present" },
+];
+
 export default function AttendancePage() {
   const [students, setStudents] = React.useState(initialStudents);
+  const { canManage, canTeach, isStudent } = useRole();
+  const { user } = useAuthStore();
 
   const updateStatus = (id: string, status: AttendanceStatus) => {
+    if (!canTeach) return;
     setStudents((prev) =>
       prev.map((s) => (s.id === id ? { ...s, status } : s))
     );
   };
 
+  // Student view - their own attendance record
+  if (isStudent) {
+    const presentCount = studentAttendanceHistory.filter((a) => a.status === "present").length;
+    const absentCount = studentAttendanceHistory.filter((a) => a.status === "absent").length;
+    const lateCount = studentAttendanceHistory.filter((a) => a.status === "late").length;
+    const total = studentAttendanceHistory.length;
+    const tauxPresence = total > 0 ? Math.round(((presentCount + lateCount) / total) * 100) : 0;
+
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Ma presence" description="Historique de votre presence en cours" />
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <StatsCard label="Taux de presence" value={`${tauxPresence}%`} icon={<CheckCircle2 className="h-5 w-5 text-success-600" />} iconBg="bg-success-100" />
+          <StatsCard label="Present" value={presentCount} icon={<CheckCircle2 className="h-5 w-5 text-success-600" />} iconBg="bg-success-100" />
+          <StatsCard label="Absent" value={absentCount} icon={<XCircle className="h-5 w-5 text-error-600" />} iconBg="bg-error-100" />
+          <StatsCard label="En retard" value={lateCount} icon={<Clock className="h-5 w-5 text-warning-600" />} iconBg="bg-warning-100" />
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Historique recent</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-border">
+              {studentAttendanceHistory.map((entry, i) => {
+                const st = statusLabels[entry.status] || { label: entry.status, color: "bg-muted text-muted-foreground" };
+                return (
+                  <div key={i} className="flex items-center justify-between px-6 py-3 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-4">
+                      <div className="text-center w-16">
+                        <p className="text-xs font-medium text-foreground">{entry.date}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{entry.matiere}</p>
+                        <p className="text-xs text-muted-foreground">{entry.horaire}</p>
+                      </div>
+                    </div>
+                    <Badge className={cn("text-xs", st.color)}>{st.label}</Badge>
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Admin/teacher view - attendance management
   const presentCount = students.filter((s) => s.status === "present").length;
   const absentCount = students.filter((s) => s.status === "absent").length;
   const lateCount = students.filter((s) => s.status === "late").length;
@@ -59,7 +136,7 @@ export default function AttendancePage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Presence" description="Enregistrement et suivi de la presence des etudiants">
-        <Button size="sm" leftIcon={<Save className="h-4 w-4" />}>Enregistrer</Button>
+        {canTeach && <Button size="sm" leftIcon={<Save className="h-4 w-4" />}>Enregistrer</Button>}
       </PageHeader>
 
       {/* Selectors */}
@@ -88,7 +165,7 @@ export default function AttendancePage() {
 
         <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
           <Calendar className="h-4 w-4 text-muted-foreground" />
-          <span>24 Mars 2026</span>
+          <span>25 Mars 2026</span>
         </div>
 
         <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
@@ -120,7 +197,7 @@ export default function AttendancePage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  {statusOptions.map((opt) => (
+                  {canTeach ? statusOptions.map((opt) => (
                     <button
                       key={opt.value}
                       onClick={() => updateStatus(student.id, opt.value)}
@@ -131,7 +208,11 @@ export default function AttendancePage() {
                     >
                       {opt.label}
                     </button>
-                  ))}
+                  )) : (
+                    <Badge className={cn("text-xs", statusLabels[student.status || "present"]?.color)}>
+                      {statusLabels[student.status || "present"]?.label}
+                    </Badge>
+                  )}
                 </div>
               </div>
             ))}
