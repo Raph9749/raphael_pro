@@ -24,7 +24,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import {
-  getEvents, getCoursesByTeacher, getGrades, getStudentsByClass,
+  getEvents, getCoursesByTeacherLastName, getTeacherByLastName, getGrades, getStudentsByClass,
   type ScheduleEvent, type Course, type StudentGrade,
 } from "@/lib/mock-data";
 import { useAuthStore } from "@/stores/auth-store";
@@ -41,12 +41,8 @@ export default function TeacherSpacePage() {
 
     const lastName = user.last_name;
 
-    // Get teacher's courses from the data store
-    const teacherFullName = `${user.first_name} ${user.last_name}`;
-    // Try to find courses by matching teacher name
-    const courses = getCoursesByTeacher(teacherFullName);
-    // Also try partial match with common name patterns
-    const allCourses = courses.length > 0 ? courses : getCoursesByTeacher(`Dr. Pierre Kamga`);
+    // Match teacher by last name to find their courses in data store
+    const allCourses = getCoursesByTeacherLastName(lastName);
     setMyCourses(allCourses);
 
     // Today's events for this teacher
@@ -56,7 +52,7 @@ export default function TeacherSpacePage() {
     const myEvents = allEvents.filter((e) =>
       e.day === dayOfWeek && (
         e.teacher.includes(lastName) ||
-        e.teacher === teacherFullName
+        e.teacher === `${user.first_name} ${user.last_name}`
       )
     ).sort((a, b) => a.startHour - b.startHour);
     setTodayEvents(myEvents);

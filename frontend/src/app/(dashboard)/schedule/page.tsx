@@ -74,7 +74,8 @@ export default function SchedulePage() {
   const [editId, setEditId] = React.useState<string | null>(null);
   const [form, setForm] = React.useState(emptyForm);
   const [showDetail, setShowDetail] = React.useState<ScheduleEvent | null>(null);
-  const { canTeach, isStudent, isParent, isTeacher, user } = useRole();
+  const { canManage, canTeach, isStudent, isParent, isTeacher, user } = useRole();
+  const [monthOffset, setMonthOffset] = React.useState(0);
 
   React.useEffect(() => {
     let allEvents = getEvents();
@@ -107,7 +108,7 @@ export default function SchedulePage() {
   const courseNames = getCourseNames();
 
   const openAdd = (day?: number, hour?: number) => {
-    if (!canTeach) return; // Students/parents can't add
+    if (!canManage) return; // Only admin/staff can add
     setForm({
       ...emptyForm,
       day: String(day ?? 0),
@@ -184,7 +185,7 @@ export default function SchedulePage() {
             </button>
           ))}
         </div>
-        {canTeach && (
+        {canManage && (
           <Button size="sm" leftIcon={<Plus className="h-4 w-4" />} onClick={() => openAdd()}>
             Ajouter un cours
           </Button>
@@ -194,16 +195,38 @@ export default function SchedulePage() {
       {/* Navigation */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon-sm" onClick={() => setWeekOffset((w) => w - 1)}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="icon-sm" onClick={() => setWeekOffset((w) => w + 1)}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setWeekOffset(0)} className="ml-1">
-            Aujourd&apos;hui
-          </Button>
-          <span className="text-sm font-semibold text-foreground ml-2">{label}</span>
+          {view === "month" ? (
+            <>
+              <Button variant="outline" size="icon-sm" onClick={() => setMonthOffset((m) => m - 1)}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon-sm" onClick={() => setMonthOffset((m) => m + 1)}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setMonthOffset(0)} className="ml-1">
+                Aujourd&apos;hui
+              </Button>
+              <span className="text-sm font-semibold text-foreground ml-2">{(() => {
+                const now = new Date();
+                const d = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+                const months = ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"];
+                return `${months[d.getMonth()]} ${d.getFullYear()}`;
+              })()}</span>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" size="icon-sm" onClick={() => setWeekOffset((w) => w - 1)}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="icon-sm" onClick={() => setWeekOffset((w) => w + 1)}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setWeekOffset(0)} className="ml-1">
+                Aujourd&apos;hui
+              </Button>
+              <span className="text-sm font-semibold text-foreground ml-2">{label}</span>
+            </>
+          )}
         </div>
         <div className="flex items-center gap-4 text-xs">
           <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-primary-200 border border-primary-300" /> Cours</span>
@@ -233,148 +256,238 @@ export default function SchedulePage() {
         </div>
       )}
 
-      <div className="flex gap-6">
-        {/* Calendar Grid */}
-        <Card className="flex-1 overflow-hidden">
+      {view === "month" ? (
+        /* Month View */
+        <Card className="overflow-hidden">
           <CardContent className="p-0">
-            <div className="overflow-x-auto">
-              <div className="min-w-[800px]">
-                {/* Header */}
-                {view !== "day" && (
-                  <div className="grid grid-cols-[80px_repeat(5,1fr)] border-b border-border">
-                    <div className="p-3 border-r border-border" />
-                    {days.map((day, i) => (
-                      <div key={day} className="p-3 text-center border-r border-border last:border-r-0">
-                        <p className="text-xs text-muted-foreground">{day}</p>
-                        <p className="text-lg font-semibold text-foreground">{dates[i].getDate()}</p>
+            {(() => {
+              const now = new Date();
+              const monthDate = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+              const year = monthDate.getFullYear();
+              const month = monthDate.getMonth();
+              const firstDay = new Date(year, month, 1);
+              const lastDay = new Date(year, month + 1, 0);
+              const startPad = (firstDay.getDay() + 6) % 7; // Monday = 0
+              const totalDays = lastDay.getDate();
+              const weeks: (number | null)[][] = [];
+              let week: (number | null)[] = Array(startPad).fill(null);
+              for (let d = 1; d <= totalDays; d++) {
+                week.push(d);
+                if (week.length === 7) { weeks.push(week); week = []; }
+              }
+              if (week.length > 0) { while (week.length < 7) week.push(null); weeks.push(week); }
+
+              const todayDate = new Date();
+              const isCurrentMonth = todayDate.getFullYear() === year && todayDate.getMonth() === month;
+
+              return (
+                <div>
+                  <div className="grid grid-cols-7 border-b border-border">
+                    {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d) => (
+                      <div key={d} className="p-2 text-center text-xs font-medium text-muted-foreground border-r border-border last:border-r-0">
+                        {d}
                       </div>
                     ))}
                   </div>
-                )}
-
-                {/* Time slots */}
-                <div className="relative">
-                  {hours.map((hour, hourIdx) => (
-                    <div
-                      key={hour}
-                      className={cn(
-                        "border-b border-border last:border-b-0",
-                        view === "day" ? "grid grid-cols-[80px_1fr]" : "grid grid-cols-[80px_repeat(5,1fr)]"
-                      )}
-                      style={{ height: "60px" }}
-                    >
-                      <div className="p-2 border-r border-border flex items-start justify-end pr-3">
-                        <span className="text-xs text-muted-foreground">{hour}</span>
-                      </div>
-                      {view === "day" ? (
-                        <div
-                          className={cn("relative transition-colors", canTeach && "cursor-pointer hover:bg-muted/30")}
-                          onClick={() => canTeach && openAdd(selectedDay, 8 + hourIdx)}
-                        />
-                      ) : (
-                        days.map((_, dayIdx) => (
+                  {weeks.map((week, wi) => (
+                    <div key={wi} className="grid grid-cols-7 border-b border-border last:border-b-0">
+                      {week.map((day, di) => {
+                        // Events for this weekday (Mon=0..Fri=4) - schedule events are weekly recurring
+                        const dayEvents = day !== null && di < 5
+                          ? events.filter((e) => e.day === di)
+                          : [];
+                        const isToday = isCurrentMonth && day === todayDate.getDate();
+                        const isWeekend = di >= 5;
+                        return (
                           <div
-                            key={dayIdx}
-                            className={cn("border-r border-border last:border-r-0 relative transition-colors", canTeach && "cursor-pointer hover:bg-muted/30")}
-                            onClick={() => canTeach && openAdd(dayIdx, 8 + hourIdx)}
-                          />
-                        ))
-                      )}
+                            key={di}
+                            className={cn(
+                              "min-h-[100px] p-1.5 border-r border-border last:border-r-0",
+                              isWeekend && "bg-muted/30",
+                              day === null && "bg-muted/10"
+                            )}
+                          >
+                            {day !== null && (
+                              <>
+                                <div className={cn(
+                                  "text-xs font-medium mb-1 w-6 h-6 flex items-center justify-center rounded-full",
+                                  isToday ? "bg-primary-600 text-white" : "text-foreground"
+                                )}>
+                                  {day}
+                                </div>
+                                <div className="space-y-0.5">
+                                  {dayEvents.slice(0, 3).map((event) => (
+                                    <div
+                                      key={event.id}
+                                      className={cn(
+                                        "text-[10px] px-1 py-0.5 rounded truncate cursor-pointer hover:opacity-80",
+                                        typeColors[event.type]
+                                      )}
+                                      onClick={() => setShowDetail(event)}
+                                    >
+                                      {event.startHour}h {event.subject}
+                                    </div>
+                                  ))}
+                                  {dayEvents.length > 3 && (
+                                    <p className="text-[10px] text-muted-foreground pl-1">+{dayEvents.length - 3} autres</p>
+                                  )}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   ))}
-
-                  {/* Event overlays */}
-                  {filteredEvents.map((event) => {
-                    const top = (event.startHour - 8) * 60;
-                    const height = event.duration * 60 - 4;
-                    const left = view === "day"
-                      ? "calc(80px + 4px)"
-                      : `calc(80px + ${event.day} * ((100% - 80px) / 5) + 4px)`;
-                    const width = view === "day"
-                      ? "calc(100% - 80px - 8px)"
-                      : `calc((100% - 80px) / 5 - 8px)`;
-                    return (
-                      <div
-                        key={event.id}
-                        className={cn(
-                          "absolute rounded-lg border p-2 cursor-pointer hover:shadow-md transition-shadow overflow-hidden",
-                          typeColors[event.type]
-                        )}
-                        style={{ top: `${top}px`, height: `${height}px`, left, width }}
-                        onClick={(e) => { e.stopPropagation(); setShowDetail(event); }}
-                      >
-                        <p className="text-xs font-semibold truncate">{event.subject}</p>
-                        <p className="text-[10px] opacity-75 truncate">{event.teacher}</p>
-                        <p className="text-[10px] opacity-75 truncate">{event.room} - {event.class}</p>
-                      </div>
-                    );
-                  })}
                 </div>
-              </div>
-            </div>
+              );
+            })()}
           </CardContent>
         </Card>
-
-        {/* Sidebar details */}
-        <div className="hidden xl:block w-72 space-y-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">
-                {view === "day" ? `Cours du ${days[selectedDay]}` : "Cours du Lundi"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {events
-                .filter((e) => e.day === (view === "day" ? selectedDay : 0))
-                .sort((a, b) => a.startHour - b.startHour)
-                .map((e) => (
-                  <div
-                    key={e.id}
-                    className="rounded-lg border border-border p-3 space-y-1 cursor-pointer hover:bg-muted/30 transition-colors"
-                    onClick={() => setShowDetail(e)}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold text-foreground">{e.subject}</span>
-                      <Badge className={cn("text-[10px]", typeColors[e.type])}>{typeLabels[e.type]}</Badge>
+      ) : (
+        <div className="flex gap-6">
+          {/* Calendar Grid */}
+          <Card className="flex-1 overflow-hidden">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <div className="min-w-[800px]">
+                  {/* Header */}
+                  {view !== "day" && (
+                    <div className="grid grid-cols-[80px_repeat(5,1fr)] border-b border-border">
+                      <div className="p-3 border-r border-border" />
+                      {days.map((day, i) => (
+                        <div key={day} className="p-3 text-center border-r border-border last:border-r-0">
+                          <p className="text-xs text-muted-foreground">{day}</p>
+                          <p className="text-lg font-semibold text-foreground">{dates[i].getDate()}</p>
+                        </div>
+                      ))}
                     </div>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      {e.startHour}:00 - {e.startHour + e.duration}:00
-                    </p>
-                    <p className="text-xs text-muted-foreground">{e.teacher} - {e.room}</p>
+                  )}
+
+                  {/* Time slots */}
+                  <div className="relative">
+                    {hours.map((hour, hourIdx) => (
+                      <div
+                        key={hour}
+                        className={cn(
+                          "border-b border-border last:border-b-0",
+                          view === "day" ? "grid grid-cols-[80px_1fr]" : "grid grid-cols-[80px_repeat(5,1fr)]"
+                        )}
+                        style={{ height: "60px" }}
+                      >
+                        <div className="p-2 border-r border-border flex items-start justify-end pr-3">
+                          <span className="text-xs text-muted-foreground">{hour}</span>
+                        </div>
+                        {view === "day" ? (
+                          <div
+                            className={cn("relative transition-colors", canManage && "cursor-pointer hover:bg-muted/30")}
+                            onClick={() => canManage && openAdd(selectedDay, 8 + hourIdx)}
+                          />
+                        ) : (
+                          days.map((_, dayIdx) => (
+                            <div
+                              key={dayIdx}
+                              className={cn("border-r border-border last:border-r-0 relative transition-colors", canManage && "cursor-pointer hover:bg-muted/30")}
+                              onClick={() => canManage && openAdd(dayIdx, 8 + hourIdx)}
+                            />
+                          ))
+                        )}
+                      </div>
+                    ))}
+
+                    {/* Event overlays */}
+                    {filteredEvents.map((event) => {
+                      const top = (event.startHour - 8) * 60;
+                      const height = event.duration * 60 - 4;
+                      const left = view === "day"
+                        ? "calc(80px + 4px)"
+                        : `calc(80px + ${event.day} * ((100% - 80px) / 5) + 4px)`;
+                      const width = view === "day"
+                        ? "calc(100% - 80px - 8px)"
+                        : `calc((100% - 80px) / 5 - 8px)`;
+                      return (
+                        <div
+                          key={event.id}
+                          className={cn(
+                            "absolute rounded-lg border p-2 cursor-pointer hover:shadow-md transition-shadow overflow-hidden",
+                            typeColors[event.type]
+                          )}
+                          style={{ top: `${top}px`, height: `${height}px`, left, width }}
+                          onClick={(e) => { e.stopPropagation(); setShowDetail(event); }}
+                        >
+                          <p className="text-xs font-semibold truncate">{event.subject}</p>
+                          <p className="text-[10px] opacity-75 truncate">{event.teacher}</p>
+                          <p className="text-[10px] opacity-75 truncate">{event.room} - {event.class}</p>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              {events.filter((e) => e.day === (view === "day" ? selectedDay : 0)).length === 0 && (
-                <p className="text-xs text-muted-foreground text-center py-4">Aucun cours ce jour</p>
-              )}
+                </div>
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Statistiques</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Total cours</span>
-                <span className="font-semibold">{events.length}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Cours magistraux</span>
-                <span className="font-semibold">{events.filter((e) => e.type === "cours").length}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">TD/TP</span>
-                <span className="font-semibold">{events.filter((e) => e.type === "td").length}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-muted-foreground">Examens</span>
-                <span className="font-semibold">{events.filter((e) => e.type === "examen").length}</span>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Sidebar details */}
+          <div className="hidden xl:block w-72 space-y-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">
+                  {view === "day" ? `Cours du ${days[selectedDay]}` : "Cours du Lundi"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {events
+                  .filter((e) => e.day === (view === "day" ? selectedDay : 0))
+                  .sort((a, b) => a.startHour - b.startHour)
+                  .map((e) => (
+                    <div
+                      key={e.id}
+                      className="rounded-lg border border-border p-3 space-y-1 cursor-pointer hover:bg-muted/30 transition-colors"
+                      onClick={() => setShowDetail(e)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-foreground">{e.subject}</span>
+                        <Badge className={cn("text-[10px]", typeColors[e.type])}>{typeLabels[e.type]}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {e.startHour}:00 - {e.startHour + e.duration}:00
+                      </p>
+                      <p className="text-xs text-muted-foreground">{e.teacher} - {e.room}</p>
+                    </div>
+                  ))}
+                {events.filter((e) => e.day === (view === "day" ? selectedDay : 0)).length === 0 && (
+                  <p className="text-xs text-muted-foreground text-center py-4">Aucun cours ce jour</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm">Statistiques</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Total cours</span>
+                  <span className="font-semibold">{events.length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Cours magistraux</span>
+                  <span className="font-semibold">{events.filter((e) => e.type === "cours").length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">TD/TP</span>
+                  <span className="font-semibold">{events.filter((e) => e.type === "td").length}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Examens</span>
+                  <span className="font-semibold">{events.filter((e) => e.type === "examen").length}</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Add/Edit Dialog */}
       <Dialog open={showAdd} onOpenChange={setShowAdd}>
@@ -513,7 +626,7 @@ export default function SchedulePage() {
                   </div>
                 </div>
               </div>
-              {canTeach && (
+              {canManage && (
                 <DialogFooter>
                   <Button
                     variant="outline"
