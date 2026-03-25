@@ -145,20 +145,20 @@ const defaultCourses: Course[] = [
 
 const defaultStudents: Student[] = [
   { id: "1", name: "Marie Nguema", matricule: "STU-2024-001", email: "m.nguema@mail.fr", phone: "+33 6 10 00 01", programme: "Informatique", classe: "L2 Informatique A", dateNaissance: "2003-05-12", status: "active" },
-  { id: "2", name: "Paul Atangana", matricule: "STU-2024-002", email: "p.atangana@mail.fr", phone: "+33 6 10 00 02", programme: "Gestion", classe: "L1 Gestion B", dateNaissance: "2004-02-20", status: "active" },
-  { id: "3", name: "Aissatou Diallo", matricule: "STU-2024-003", email: "a.diallo@mail.fr", phone: "+33 6 10 00 03", programme: "Marketing", classe: "L2 Marketing", dateNaissance: "2003-09-15", status: "active" },
-  { id: "4", name: "Emmanuel Nkoulou", matricule: "STU-2024-004", email: "e.nkoulou@mail.fr", phone: "+33 6 10 00 04", programme: "Finance", classe: "M1 Finance", dateNaissance: "2001-11-08", status: "active" },
+  { id: "2", name: "Paul Atangana", matricule: "STU-2024-002", email: "p.atangana@mail.fr", phone: "+33 6 10 00 02", programme: "Gestion des Entreprises", classe: "L1 Gestion B", dateNaissance: "2004-02-20", status: "active" },
+  { id: "3", name: "Aissatou Diallo", matricule: "STU-2024-003", email: "a.diallo@mail.fr", phone: "+33 6 10 00 03", programme: "Marketing et Communication", classe: "L2 Marketing", dateNaissance: "2003-09-15", status: "active" },
+  { id: "4", name: "Emmanuel Nkoulou", matricule: "STU-2024-004", email: "e.nkoulou@mail.fr", phone: "+33 6 10 00 04", programme: "Finance et Comptabilite", classe: "M1 Finance", dateNaissance: "2001-11-08", status: "active" },
   { id: "5", name: "Sandrine Essomba", matricule: "STU-2024-005", email: "s.essomba@mail.fr", phone: "+33 6 10 00 05", programme: "Informatique", classe: "L3 Informatique", dateNaissance: "2002-07-25", status: "suspended" },
-  { id: "6", name: "Jean-Claude Fouda", matricule: "STU-2024-006", email: "jc.fouda@mail.fr", phone: "+33 6 10 00 06", programme: "Droit", classe: "L1 Gestion A", dateNaissance: "2004-01-30", status: "active" },
-  { id: "7", name: "Celine Mvondo", matricule: "STU-2024-007", email: "c.mvondo@mail.fr", phone: "+33 6 10 00 07", programme: "Finance", classe: "M1 Finance", dateNaissance: "2001-06-18", status: "active" },
-  { id: "8", name: "Andre Biya", matricule: "STU-2024-008", email: "a.biya@mail.fr", phone: "+33 6 10 00 08", programme: "Gestion", classe: "L2 Gestion", dateNaissance: "2003-04-10", status: "inactive" },
-  { id: "9", name: "Florence Onana", matricule: "STU-2024-009", email: "f.onana@mail.fr", phone: "+33 6 10 00 09", programme: "Marketing", classe: "L1 Marketing", dateNaissance: "2004-08-22", status: "active" },
+  { id: "6", name: "Jean-Claude Fouda", matricule: "STU-2024-006", email: "jc.fouda@mail.fr", phone: "+33 6 10 00 06", programme: "Droit des Affaires", classe: "L1 Gestion A", dateNaissance: "2004-01-30", status: "active" },
+  { id: "7", name: "Celine Mvondo", matricule: "STU-2024-007", email: "c.mvondo@mail.fr", phone: "+33 6 10 00 07", programme: "Finance et Comptabilite", classe: "M1 Finance", dateNaissance: "2001-06-18", status: "active" },
+  { id: "8", name: "Andre Biya", matricule: "STU-2024-008", email: "a.biya@mail.fr", phone: "+33 6 10 00 08", programme: "Gestion des Entreprises", classe: "L2 Gestion", dateNaissance: "2003-04-10", status: "inactive" },
+  { id: "9", name: "Florence Onana", matricule: "STU-2024-009", email: "f.onana@mail.fr", phone: "+33 6 10 00 09", programme: "Marketing et Communication", classe: "L1 Marketing", dateNaissance: "2004-08-22", status: "active" },
   { id: "10", name: "Patrick Mbarga", matricule: "STU-2024-010", email: "p.mbarga@mail.fr", phone: "+33 6 10 00 10", programme: "Informatique", classe: "L1 Informatique B", dateNaissance: "2004-12-05", status: "active" },
-  { id: "11", name: "Rose Ekotto", matricule: "STU-2024-011", email: "r.ekotto@mail.fr", phone: "+33 6 10 00 11", programme: "Droit", classe: "L1 Gestion A", dateNaissance: "2002-03-14", status: "graduated" },
-  { id: "12", name: "Samuel Tamba Jr", matricule: "STU-2024-012", email: "s.tamba.jr@mail.fr", phone: "+33 6 10 00 12", programme: "Finance", classe: "M1 Finance", dateNaissance: "2000-10-28", status: "active" },
+  { id: "11", name: "Rose Ekotto", matricule: "STU-2024-011", email: "r.ekotto@mail.fr", phone: "+33 6 10 00 11", programme: "Droit des Affaires", classe: "L1 Gestion A", dateNaissance: "2002-03-14", status: "graduated" },
+  { id: "12", name: "Samuel Tamba Jr", matricule: "STU-2024-012", email: "s.tamba.jr@mail.fr", phone: "+33 6 10 00 12", programme: "Finance et Comptabilite", classe: "M1 Finance", dateNaissance: "2000-10-28", status: "active" },
   { id: "13", name: "Beatrice Ngo", matricule: "STU-2024-013", email: "b.ngo@mail.fr", phone: "+33 6 10 00 13", programme: "Informatique", classe: "L2 Informatique B", dateNaissance: "2003-01-17", status: "active" },
-  { id: "14", name: "Thierry Kamga", matricule: "STU-2024-014", email: "t.kamga@mail.fr", phone: "+33 6 10 00 14", programme: "Gestion", classe: "L3 Gestion", dateNaissance: "2002-06-09", status: "active" },
-  { id: "15", name: "Nadine Owono", matricule: "STU-2024-015", email: "n.owono@mail.fr", phone: "+33 6 10 00 15", programme: "Marketing", classe: "L2 Marketing", dateNaissance: "2003-11-03", status: "active" },
+  { id: "14", name: "Thierry Kamga", matricule: "STU-2024-014", email: "t.kamga@mail.fr", phone: "+33 6 10 00 14", programme: "Gestion des Entreprises", classe: "L3 Gestion", dateNaissance: "2002-06-09", status: "active" },
+  { id: "15", name: "Nadine Owono", matricule: "STU-2024-015", email: "n.owono@mail.fr", phone: "+33 6 10 00 15", programme: "Marketing et Communication", classe: "L2 Marketing", dateNaissance: "2003-11-03", status: "active" },
 ];
 
 const defaultPrograms: Program[] = [
@@ -169,6 +169,30 @@ const defaultPrograms: Program[] = [
   { id: "5", name: "Droit des Affaires", code: "DROIT", degree: "Licence", department: "Sciences Juridiques", duration: 3, capacity: 180, description: "Formation en droit commercial, droit du travail, droit fiscal et procedures juridiques.", levels: ["L1", "L2", "L3"], status: "active" },
   { id: "6", name: "Tourisme et Hotellerie", code: "TOUR", degree: "BTS", department: "Services", duration: 2, capacity: 60, description: "Programme en preparation - ouverture prevue pour 2026-2027.", levels: [], status: "inactive" },
 ];
+
+// ============== DATA VERSION (forces reset when schema changes) ==============
+
+const DATA_VERSION = "3";
+const VERSION_KEY = "isce_data_version";
+
+function checkVersion(): void {
+  if (typeof window === "undefined") return;
+  const stored = localStorage.getItem(VERSION_KEY);
+  if (stored !== DATA_VERSION) {
+    // Clear all ISCE data to force reload from new defaults
+    localStorage.removeItem(TEACHERS_KEY);
+    localStorage.removeItem(CLASSES_KEY);
+    localStorage.removeItem(EVENTS_KEY);
+    localStorage.removeItem(COURSES_KEY);
+    localStorage.removeItem(STUDENTS_KEY);
+    localStorage.removeItem(PROGRAMS_KEY);
+    localStorage.removeItem("isce_grades");
+    localStorage.setItem(VERSION_KEY, DATA_VERSION);
+  }
+}
+
+// Run version check on module load
+checkVersion();
 
 // ============== CRUD HELPERS ==============
 
@@ -424,7 +448,12 @@ export function getStudentsByClass(className: string): Student[] {
 }
 
 export function getStudentsByProgram(programName: string): Student[] {
-  return getStudents().filter((s) => s.programme === programName);
+  const firstWord = programName.split(" ")[0].toLowerCase();
+  return getStudents().filter((s) =>
+    s.programme === programName ||
+    s.programme.toLowerCase() === firstWord ||
+    s.programme.split(" ")[0].toLowerCase() === firstWord
+  );
 }
 
 export function getCoursesByTeacher(teacherName: string): Course[] {

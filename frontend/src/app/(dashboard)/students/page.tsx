@@ -54,7 +54,14 @@ export default function StudentsPage() {
 
   const filteredStudents = React.useMemo(() => {
     let list = students;
-    if (filterProg !== "all") list = list.filter((s) => s.programme === filterProg);
+    if (filterProg !== "all") {
+      const firstWord = filterProg.split(" ")[0].toLowerCase();
+      list = list.filter((s) =>
+        s.programme === filterProg ||
+        s.programme.toLowerCase() === firstWord ||
+        s.programme.split(" ")[0].toLowerCase() === firstWord
+      );
+    }
     if (filterStatus !== "all") list = list.filter((s) => s.status === filterStatus);
     return list;
   }, [students, filterProg, filterStatus]);
