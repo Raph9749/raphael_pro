@@ -228,9 +228,11 @@ function getNavSections(role: User["role"]): NavSection[] {
 
 interface SidebarProps {
   onNavigate?: () => void;
+  className?: string;
+  mobile?: boolean;
 }
 
-export function Sidebar({ onNavigate }: SidebarProps) {
+export function Sidebar({ onNavigate, className, mobile }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = React.useState(false);
@@ -256,8 +258,10 @@ export function Sidebar({ onNavigate }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-border bg-white transition-all duration-300 ease-in-out",
-        collapsed ? "w-[72px]" : "w-[260px]"
+        "fixed left-0 top-0 z-40 h-screen flex-col border-r border-border bg-white transition-all duration-300 ease-in-out",
+        collapsed ? "w-[72px]" : "w-[260px]",
+        mobile && "z-50",
+        className
       )}
     >
       {/* Logo */}

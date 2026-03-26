@@ -23,19 +23,15 @@ export function AppLayout({ children }: AppLayoutProps) {
         />
       )}
 
-      {/* Sidebar - hidden on mobile, shown on lg+ */}
-      <div className="hidden lg:block">
-        <Sidebar />
-      </div>
+      {/* Sidebar - hidden on mobile via prop, shown on lg+ */}
+      <Sidebar className="hidden lg:flex" />
 
       {/* Mobile sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 lg:hidden transition-transform duration-300 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <Sidebar onNavigate={() => setMobileOpen(false)} />
-      </div>
+      <Sidebar
+        className={`lg:hidden ${mobileOpen ? "flex" : "hidden"}`}
+        onNavigate={() => setMobileOpen(false)}
+        mobile
+      />
 
       <div className="lg:pl-[260px] transition-all duration-300">
         <Topbar onMenuClick={() => setMobileOpen(true)} />
