@@ -102,9 +102,9 @@ export default function DocumentsPage() {
 
       {/* Recent Documents */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
           <h3 className="text-sm font-semibold text-muted-foreground">{isStudent ? "Mes documents recents" : "Documents recents"}</h3>
-          <div className="relative w-64">
+          <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
@@ -121,20 +121,20 @@ export default function DocumentsPage() {
                 const fileConfig = fileIcons[doc.type] || { icon: File, color: "text-muted-foreground bg-muted" };
                 const FileIcon = fileConfig.icon;
                 return (
-                  <div key={index} className="flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer">
+                  <div key={index} className="flex items-center justify-between px-3 sm:px-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer gap-2">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={cn("flex h-10 w-10 shrink-0 items-center justify-center rounded-lg", fileConfig.color)}>
-                        <FileIcon className="h-5 w-5" />
+                      <div className={cn("flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg", fileConfig.color)}>
+                        <FileIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{doc.name}</p>
+                        <p className="text-xs sm:text-sm font-medium text-foreground truncate">{doc.name}</p>
                         <p className="text-xs text-muted-foreground">{doc.type} - {doc.size}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 shrink-0">
-                      <Badge variant="outline" className="text-xs">{doc.category}</Badge>
-                      {!isStudent && <span className="text-xs text-muted-foreground w-20">{doc.author}</span>}
-                      <span className="text-xs text-muted-foreground w-24">{doc.date}</span>
+                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                      <Badge variant="outline" className="text-xs hidden sm:inline-flex">{doc.category}</Badge>
+                      {!isStudent && <span className="text-xs text-muted-foreground w-20 hidden md:block">{doc.author}</span>}
+                      <span className="text-xs text-muted-foreground hidden sm:block">{doc.date}</span>
                       <Button variant="ghost" size="icon-sm"><Download className="h-4 w-4" /></Button>
                     </div>
                   </div>

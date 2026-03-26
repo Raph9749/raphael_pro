@@ -153,7 +153,7 @@ export default function GradesPage() {
       {/* Course selector */}
       <div className="flex flex-wrap items-center gap-3">
         <Select value={selectedCourse} onValueChange={setSelectedCourse}>
-          <SelectTrigger className="w-[400px]">
+          <SelectTrigger className="w-full sm:w-[400px]">
             <SelectValue placeholder="Choisir un cours" />
           </SelectTrigger>
           <SelectContent>

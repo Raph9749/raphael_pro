@@ -107,17 +107,17 @@ export default function AttendancePage() {
               {studentAttendanceHistory.map((entry, i) => {
                 const st = statusLabels[entry.status] || { label: entry.status, color: "bg-muted text-muted-foreground" };
                 return (
-                  <div key={i} className="flex items-center justify-between px-6 py-3 hover:bg-muted/30 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center w-16">
+                  <div key={i} className="flex items-center justify-between px-3 sm:px-6 py-3 hover:bg-muted/30 transition-colors gap-2">
+                    <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                      <div className="text-center w-16 shrink-0">
                         <p className="text-xs font-medium text-foreground">{entry.date}</p>
                       </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{entry.matiere}</p>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{entry.matiere}</p>
                         <p className="text-xs text-muted-foreground">{entry.horaire}</p>
                       </div>
                     </div>
-                    <Badge className={cn("text-xs", st.color)}>{st.label}</Badge>
+                    <Badge className={cn("text-xs shrink-0", st.color)}>{st.label}</Badge>
                   </div>
                 );
               })}
@@ -140,7 +140,7 @@ export default function AttendancePage() {
       </PageHeader>
 
       {/* Selectors */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
         <Select defaultValue="l2a">
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Classe" />
@@ -187,9 +187,9 @@ export default function AttendancePage() {
         <CardContent className="p-0">
           <div className="divide-y divide-border">
             {students.map((student, index) => (
-              <div key={student.id} className="flex items-center justify-between px-6 py-3.5 hover:bg-muted/30 transition-colors">
-                <div className="flex items-center gap-4">
-                  <span className="text-xs text-muted-foreground w-6 text-right">{index + 1}</span>
+              <div key={student.id} className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-3.5 hover:bg-muted/30 transition-colors gap-2">
+                <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+                  <span className="text-xs text-muted-foreground w-4 sm:w-6 text-right shrink-0">{index + 1}</span>
                   <UserAvatar name={student.name} size="sm" />
                   <div>
                     <p className="text-sm font-medium text-foreground">{student.name}</p>

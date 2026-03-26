@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Search, Plus, ChevronDown, User, Settings, LogOut } from "lucide-react";
+import { Bell, Search, Plus, ChevronDown, User, Settings, LogOut, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/ui/avatar";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
@@ -17,7 +17,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function Topbar() {
+interface TopbarProps {
+  onMenuClick?: () => void;
+}
+
+export function Topbar({ onMenuClick }: TopbarProps) {
   const router = useRouter();
   const { user, logout } = useAuthStore();
 
@@ -32,9 +36,15 @@ export function Topbar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-white px-6">
-      {/* Left: Breadcrumb */}
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border bg-white px-3 sm:px-6">
+      {/* Left: Menu + Breadcrumb */}
+      <div className="flex items-center gap-2 sm:gap-4">
+        <button
+          onClick={onMenuClick}
+          className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
         <Breadcrumbs />
       </div>
 
