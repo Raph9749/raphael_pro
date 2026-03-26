@@ -70,9 +70,9 @@ export default function CommunicationPage() {
         <Button size="sm" leftIcon={<Plus className="h-4 w-4" />}>Nouveau message</Button>
       </PageHeader>
 
-      <div className="flex gap-6 h-[calc(100vh-220px)]">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 lg:h-[calc(100vh-220px)]">
         {/* Message List */}
-        <Card className="w-[400px] shrink-0 flex flex-col overflow-hidden">
+        <Card className="w-full lg:w-[400px] lg:shrink-0 flex flex-col overflow-hidden max-h-[50vh] lg:max-h-none">
           <div className="p-3 border-b border-border">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

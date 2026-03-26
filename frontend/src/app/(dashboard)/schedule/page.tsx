@@ -322,7 +322,7 @@ export default function SchedulePage() {
                           <div
                             key={di}
                             className={cn(
-                              "min-h-[100px] p-1.5 border-r border-border last:border-r-0",
+                              "min-h-[80px] sm:min-h-[100px] p-1 sm:p-1.5 border-r border-border last:border-r-0",
                               isWeekend && "bg-muted/30",
                               day === null && "bg-muted/10"
                             )}

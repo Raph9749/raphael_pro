@@ -53,10 +53,10 @@ export default function SettingsPage() {
       />
 
       <Tabs defaultValue="profile">
-        <TabsList>
-          <TabsTrigger value="profile" className="gap-1.5"><User className="h-4 w-4" /> Mon profil</TabsTrigger>
+        <TabsList className="flex-wrap">
+          <TabsTrigger value="profile" className="gap-1.5"><User className="h-4 w-4" /> <span className="hidden sm:inline">Mon</span> Profil</TabsTrigger>
           <TabsTrigger value="security" className="gap-1.5"><Lock className="h-4 w-4" /> Securite</TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-1.5"><Bell className="h-4 w-4" /> Notifications</TabsTrigger>
+          <TabsTrigger value="notifications" className="gap-1.5"><Bell className="h-4 w-4" /> <span className="hidden sm:inline">Notifications</span><span className="sm:hidden">Notifs</span></TabsTrigger>
           {isAdmin && (
             <>
               <TabsTrigger value="institution" className="gap-1.5"><Building className="h-4 w-4" /> Etablissement</TabsTrigger>
@@ -81,7 +81,7 @@ export default function SettingsPage() {
                   <Badge variant="outline">{roleLabel}</Badge>
                 </div>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <Input label="Prenom" defaultValue={user?.first_name || ""} />
                 <Input label="Nom" defaultValue={user?.last_name || ""} />
                 <Input label="Email" type="email" defaultValue={user?.email || ""} />
